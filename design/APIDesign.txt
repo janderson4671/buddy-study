@@ -1,0 +1,106 @@
+API Endpoints 
+
+--------------------------------------------------------------------------------------------------------------------
+User Accounts:
+
+"api/user/register" -> register a new user into the system (POST)
+    request: {
+        username : string,
+        password : string,
+        email    : string
+    }
+    response: {
+        username : string,
+        success : bool,
+        message : string (if there is an error)
+    }
+
+"api/user/login" -> login an existing user in the system (POST)
+    request: {
+        username : string,
+        password : string
+    }
+    response: {
+        username : string,
+        success : bool,
+        message : string (if there is an error)
+    }
+
+"api/user/delete" -> delete an account for an existing user in system (And all relevant data) (POST)
+    request: {
+        username : string,
+        password : string
+    }
+    response: {
+        success : bool,
+        message : string (if there is an error)
+    }
+
+--------------------------------------------------------------------------------------------------------------------
+Managing Study Sets:
+
+"api/studyset/create" -> Create a study set for a user (POST)
+    request: {
+        username : string,
+        subject  : string
+    }
+    response: {
+        success : bool,
+        message : string (if there is an error),
+        studysetID : string (UUID)
+    }
+
+"api/studyset/delete" -> delete a study set for a user (and associated Flashcards) (POST)
+    request: {
+        username : string,
+        studysetID : strin
+    }
+    response: {
+        success : bool,
+        message : string (if there is an error)
+    }
+
+"api/studyset/allsets/:username" -> retrieve all studysets associated with a user (GET)
+    response: {
+        success : bool,
+        message : string (if there is an error)
+        List<StudySet> : list of studysets associated with a user
+    }
+
+--------------------------------------------------------------------------------------------------------------------
+Managing FlashCards:
+
+"api/flashcard/create" -> create a new flashcard for a study set (POST)
+    request: {
+        studysetID : string,
+        questionNum : int,
+        questionText : string,
+        answerText : string
+    }
+    response: {
+        success : bool,
+        message : string (if there is an error)
+    }
+
+"api/flashcard/delete" -> delete an existing flashcard (POST)
+    request: {
+        studysetID : string,
+        questionNum : int
+    }
+    response: {
+        success : bool,
+        message : string (if there is an error)
+    }
+
+"api/flashcard/update" -> update an existing flashcard (POST)
+    request: {
+        studysetID : string,
+        questionNum : int,
+        questionText : string,
+        answerText : string
+    }
+    response: {
+        success : bool,
+        message : string (if there is an error)
+    } 
+

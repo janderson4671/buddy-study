@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json()); 
 
 // Connect to the database
-mongoose.connect('mongodb://localhost:3333/buddy-study', {
+mongoose.connect('mongodb://localhost:27017/buddy-study', {
     useNewUrlParser: true, 
     useUnifiedTopology: true
 }); 
@@ -60,4 +60,4 @@ app.post("/api/user/register", async (req, res) => {
     }
 }); 
 
-app.listen(3001, () => console.log("Server listening on port 3001!")); 
+app.listen(3000, () => console.log("Server listening on port 3000!")); 

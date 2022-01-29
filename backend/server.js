@@ -34,7 +34,7 @@ const User = mongoose.model("User", userSchema);
 // Create new user
 app.post("/api/user/register", async (req, res) => {
     let existingUsername = await User.findOne({
-        username = req.body.username
+        username: req.body.username
     }); 
     if (!existingUsername) {
         res.send({

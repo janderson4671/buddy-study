@@ -1,12 +1,15 @@
 // Testing setup
 const axios = require("axios");
 const api = axios.create({
-    baseURL : "localhost:3000"
+    baseURL : "http://localhost:3000"
 });
 
 /************************** TESTING UTILITY METHODS ***************************/
 let reportFailure = function(message) {
     console.error(message);
+}
+let reportSuccess = function(message) {
+    console.log(message);
 }
 let assertNotNull = function(object) {
     if (object == null) {
@@ -42,6 +45,9 @@ let registerTests = async function registerTests() {
         if (response.body.username !== validRegisterRequest.username) {
             reportFailure("Response username does not match request username");
         }
+
+        // Passed this test!
+        reportSuccess("Valid Register Passed");
     } catch (error) {
         reportFailure(error)
     }
@@ -54,6 +60,9 @@ let registerTests = async function registerTests() {
         if (response.body.success) {
             reportFailure("Register service succeeded when it should not have");
         }
+
+        // Passed this test!
+        reportSuccess("Invalid Register Passed");
     } catch (error) {
         reportFailure(error);
     }

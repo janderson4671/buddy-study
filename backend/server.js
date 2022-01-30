@@ -42,6 +42,7 @@ app.post("/api/user/register", async (req, res) => {
             success: false, 
             message: "Username already taken..",
         }); 
+        return;
     } 
     const user = new User({
         username: req.body.username, 

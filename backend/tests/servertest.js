@@ -39,10 +39,10 @@ let registerTests = async function registerTests() {
     
         assertNotNull(response);
     
-        if (!response.body.success) {
+        if (!response.data.success) {
             reportFailure("Register service failed when it should not have");
         }
-        if (response.body.username !== validRegisterRequest.username) {
+        if (response.data.username !== validRegisterRequest.username) {
             reportFailure("Response username does not match request username");
         }
 
@@ -57,8 +57,8 @@ let registerTests = async function registerTests() {
         response = await api.post("/api/user/register", invalidRegisterRequest);
         assertNotNull(response);
     
-        if (response.body.success) {
-            reportFailure("Register service succeeded when it should not have");
+        if (response.data.success) {
+            throw "Invalid register was successful when it should not have";
         }
 
         // Passed this test!

@@ -69,7 +69,8 @@ let registerTests = async function registerTests() {
         // Passed this test!
         reportSuccess("Valid Register Passed");
     } catch (error) {
-        reportFailure(error)
+        reportFailure(error);
+        process.exit(1);
     }
 
     // Test Duplicate Username
@@ -86,6 +87,7 @@ let registerTests = async function registerTests() {
         reportSuccess("Duplicate Username Passed")
     } catch (error) {
         reportFailure(error);
+        process.exit(1);
     }
     
     // Test Invalid Register API Call
@@ -101,10 +103,119 @@ let registerTests = async function registerTests() {
         reportSuccess("Invalid Register Passed");
     } catch (error) {
         reportFailure(error);
+        process.exit(1);
     }
 }
 
+/************************** LOGIN API TESTS ***************************/
+let loginTests = async function loginTests() {
+    console.log("\n -------------------- BEGIN USER LOGIN TESTS -------------------- \n");
 
+    let registerRequest = {
+        username : "person123",
+        password : "password",
+        email : "randomemail@email.com"
+    }
+
+    let validLoginRequest = {
+        username : "person123",
+        password : "password",
+    }
+
+    let notUserInSystemLoginRequest = {
+        username : "dontexist",
+        password : "password",
+    }
+
+    let wrongPasswordRequest = {
+        username : "person123",
+        password : "wordpass",
+    }
+    
+    let invalidUsernameRequest = {
+        username : null,
+        password : "password",
+    }
+
+    let invalidPasswordRequest = {
+        username : "person123",
+        password : null,
+    }
+
+    // Clear the User database and register a single user
+    await clearUsers();
+    var response = api.post("/api/user/register", registerRequest);
+
+    // Valid Login Test
+    try {
+        response = api.post("/api/user/login", validLoginRequest);
+        assertNotNull(response);
+
+        if (!response.data.success) {
+            throw "Login was unsuccessful when given valid login";
+        }
+        if (response.data.username !== validLoginRequest.username) {
+            throw "Response username does not match request username";
+        }
+
+        reportSuccess("Passed Valid Login")
+    } catch (error) {
+        reportFailure(error);
+        process.exit(1);
+    }
+
+    // User is not registered Test
+    try {
+        response = api.post("/api/user/login", notUserInSystemLoginRequest);
+        assertNotNull(response);
+
+        if (response.data.success) {
+            throw "Login was successful for a user that does not exist";
+        }
+
+        reportSuccess("Passed Non-Registered User Login");
+    } catch (error) {
+        reportFailure(error);
+        process.exit(1);
+    }
+
+    // Wrong Password Test
+    try {
+        response = api.post("/api/user/login", wrongPasswordRequest);
+        assertNotNull(response);
+
+        if (response.data.success) {
+            throw "Login was successful with incorrect password";
+        }
+
+        reportSuccess("Passed Wrong Password Login");
+    } catch (error) {
+        reportFailure(error);
+        process.exit(1);
+    }
+
+    // Null Username and Password Login Tests
+    try {
+        response = api.post("/api/user/login", invalidUsernameRequest);
+        assertNotNull(response);
+
+        if (response.data.success) {
+            throw "Login was successful with null Username";
+        }
+
+        response = api.post("/api/user/login", invalidPasswordRequest);
+        assertNotNull(response);
+
+        if (response.data.success) {
+            throw "Login was successful with null Password";
+        }
+
+        reportSuccess("Passed Null Username and Password Test");
+    } catch (error) {
+        reportFailure(error);
+        process.exit(1);
+    }
+}
 
 
 /***************************** Run Tests ********************************/
@@ -112,4 +223,5 @@ let registerTests = async function registerTests() {
 // MAKE SURE THAT THE DATABASE URL IS "mongodb://localhost:27017/buddy-study-test"
 
 // Comment out any tests that you do not need running
-registerTests();
+// registerTests();
+loginTests();

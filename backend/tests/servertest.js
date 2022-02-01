@@ -1,5 +1,6 @@
 // Testing setup
 const axios = require("axios");
+const { response } = require("express");
 const api = axios.create({
     baseURL : "http://localhost:3000"
 });
@@ -34,6 +35,9 @@ let clearUsers = async function() {
 
 /************************** REGISTER API TESTS ***************************/
 let registerTests = async function registerTests() {
+
+    console.log("\n -------------------- BEGIN USER REGISTER TESTS -------------------- \n");
+
     let validRegisterRequest = {
         username : "person123",
         password : "password",
@@ -51,7 +55,7 @@ let registerTests = async function registerTests() {
     
     // Test Valid Register API call
     try {
-        let response = await api.post("/api/user/register", validRegisterRequest);
+        var response = await api.post("/api/user/register", validRegisterRequest);
     
         assertNotNull(response);
     
@@ -66,6 +70,22 @@ let registerTests = async function registerTests() {
         reportSuccess("Valid Register Passed");
     } catch (error) {
         reportFailure(error)
+    }
+
+    // Test Duplicate Username
+    try {
+        response = await api.post("/api/user/register", validRegisterRequest);
+
+        assertNotNull(response);
+
+        if (response.data.success) {
+            throw "Duplicate Username was allowed to register to system"
+        }
+
+        // Passed this test
+        reportSuccess("Duplicate Username Passed")
+    } catch (error) {
+        reportFailure(error);
     }
     
     // Test Invalid Register API Call

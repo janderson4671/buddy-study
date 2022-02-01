@@ -4,16 +4,29 @@ const api = axios.create({
     baseURL : "http://localhost:3000"
 });
 
+const readline = require("readline");
+const consoleInterface = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+});
+
 /************************** TESTING UTILITY METHODS ***************************/
 let reportFailure = function(message) {
-    console.error(message);
+    console.error("ERROR: " + message);
 }
 let reportSuccess = function(message) {
-    console.log(message);
+    console.log("SUCCESS: " + message);
 }
 let assertNotNull = function(object) {
     if (object == null) {
         reportFailure("Response Object is Null!");
+    }
+}
+
+let clearUsers = async function() {
+    let response = await api.get("/api/database/clearUsers");
+    if (!response.data.success) {
+        throw "Clear User Database Failed!"
     }
 }
 /******************************************************************************/
@@ -32,6 +45,9 @@ let registerTests = async function registerTests() {
         password : "password",
         email : null
     }
+
+    // Clear the User Database
+    await clearUsers();
     
     // Test Valid Register API call
     try {
@@ -40,10 +56,10 @@ let registerTests = async function registerTests() {
         assertNotNull(response);
     
         if (!response.data.success) {
-            reportFailure("Register service failed when it should not have");
+            throw "Register service failed when it should not have";
         }
         if (response.data.username !== validRegisterRequest.username) {
-            reportFailure("Response username does not match request username");
+            throw "Response username does not match request username";
         }
 
         // Passed this test!
@@ -72,5 +88,8 @@ let registerTests = async function registerTests() {
 
 
 /***************************** Run Tests ********************************/
+
+// MAKE SURE THAT THE DATABASE URL IS "mongodb://localhost:27017/buddy-study-test"
+
 // Comment out any tests that you do not need running
 registerTests();

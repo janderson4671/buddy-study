@@ -31,6 +31,15 @@ const userSchema = new mongoose.Schema({
 // Model for users
 const User = mongoose.model("User", userSchema); 
 
+// Delete all users
+app.get("/api/database/clearUsers", async (req, res) => {
+    User.collection.drop();
+    res.send({
+        success: true,
+        message: "Database Cleared!"
+    })
+})
+
 // Create new user
 app.post("/api/user/register", async (req, res) => {
     if ((req.body.username == null) || (req.body.password == null) || (req.body.email == null)) {
@@ -39,6 +48,7 @@ app.post("/api/user/register", async (req, res) => {
             success: false, 
             message: "Must include username, password, and email.."
         })
+        return;
     }
     let existingUsername = await User.findOne({
         username: req.body.username

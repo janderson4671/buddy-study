@@ -33,10 +33,18 @@ const User = mongoose.model("User", userSchema);
 
 // Create new user
 app.post("/api/user/register", async (req, res) => {
+    if ((req.body.username == null) || (req.body.password == null) || (req.body.email == null)) {
+        res.send({
+            username: req.body.username, 
+            success: false, 
+            message: "Must include username, password, and email.."
+        })
+    }
     let existingUsername = await User.findOne({
         username: req.body.username
     }); 
-    if (!existingUsername) {
+    console.log(existingUsername); 
+    if (existingUsername) {
         res.send({
             username: req.body.username, 
             success: false, 

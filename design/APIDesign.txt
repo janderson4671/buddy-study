@@ -1,39 +1,48 @@
 API Endpoints 
 
+Database Management:
+
+"api/database/clear" -> Clears everything from the database (GET)
+    response: {
+        success : bool,     (NOT NULL)
+        message : string
+    }
+
+
 --------------------------------------------------------------------------------------------------------------------
 User Accounts:
 
 "api/user/register" -> register a new user into the system (POST)
     request: {
-        username : string,
-        password : string,
-        email    : string
+        username : string,  (NOT NULL)
+        password : string,  (NOT NULL)
+        email    : string   (NOT NULL)
     }
     response: {
-        username : string,
-        success : bool,
-        message : string (if there is an error)
+        username : string,  (NOT NULL)
+        success : bool,     (NOT NULL)
+        message : string 
     }
 
 "api/user/login" -> login an existing user in the system (POST)
     request: {
-        username : string,
-        password : string
+        username : string,  (NOT NULL)
+        password : string   (NOT NULL)
     }
     response: {
-        username : string,
-        success : bool,
-        message : string (if there is an error)
+        username : string,  (Can be NULL if !success)
+        success : bool,     (NOT NULL)
+        message : string 
     }
 
 "api/user/delete" -> delete an account for an existing user in system (And all relevant data) (POST)
     request: {
-        username : string,
-        password : string
+        username : string,  (NOT NULL)
+        password : string   (NOT NULL)
     }
     response: {
-        success : bool,
-        message : string (if there is an error)
+        success : bool,     (NOT NULL)
+        message : string
     }
 
 --------------------------------------------------------------------------------------------------------------------
@@ -41,30 +50,30 @@ Managing Study Sets:
 
 "api/studyset/create" -> Create a study set for a user (POST)
     request: {
-        username : string,
-        subject  : string
+        username : string,  (NOT NULL)
+        subject  : string   (NOT NULL)
     }
     response: {
-        success : bool,
-        message : string (if there is an error),
-        studysetID : string (UUID)
+        success : bool,     (NOT NULL)
+        message : string
+        studysetID : string (Can be NULL if !success)
     }
 
 "api/studyset/delete" -> delete a study set for a user (and associated Flashcards) (POST)
     request: {
-        username : string,
-        studysetID : strin
+        username : string,  (NOT NULL)
+        studysetID : string (NOT NULL)
     }
     response: {
-        success : bool,
-        message : string (if there is an error)
+        success : bool,     (NOT NULL)
+        message : string    
     }
 
 "api/studyset/allsets/:username" -> retrieve all studysets associated with a user (GET)
     response: {
-        success : bool,
-        message : string (if there is an error)
-        List<StudySet> : list of studysets associated with a user
+        success : bool,     (NOT NULL)
+        message : string
+        List<StudySet> : list of studysets associated with a user   (Can be NULL if !success)
     }
 
 --------------------------------------------------------------------------------------------------------------------
@@ -72,35 +81,35 @@ Managing FlashCards:
 
 "api/flashcard/create" -> create a new flashcard for a study set (POST)
     request: {
-        studysetID : string,
-        questionNum : int,
-        questionText : string,
-        answerText : string
+        studysetID : string,    (NOT NULL)
+        questionNum : int,      (NOT NULL)
+        questionText : string,  (NOT NULL)
+        answerText : string     (NOT NULL)
     }
     response: {
-        success : bool,
+        success : bool,         (NOT NULL)
         message : string (if there is an error)
     }
 
 "api/flashcard/delete" -> delete an existing flashcard (POST)
     request: {
-        studysetID : string,
-        questionNum : int
+        studysetID : string,    (NOT NULL)
+        questionNum : int       (NOT NULL)
     }
     response: {
-        success : bool,
-        message : string (if there is an error)
+        success : bool,         (NOT NULL)
+        message : string
     }
 
 "api/flashcard/update" -> update an existing flashcard (POST)
     request: {
-        studysetID : string,
-        questionNum : int,
-        questionText : string,
-        answerText : string
+        studysetID : string,    (NOT NULL)
+        questionNum : int,      (NOT NULL)
+        questionText : string,  (NOT NULL)
+        answerText : string     (NOT NULL)
     }
     response: {
         success : bool,
-        message : string (if there is an error)
+        message : string
     } 
 

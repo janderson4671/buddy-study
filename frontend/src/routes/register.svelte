@@ -10,16 +10,18 @@
 		baseURL : "http://localhost:3000"
 	});
 
-	async function loginUser() {
+	async function registerUser() {
 		try {
-			let response = await api.post("/api/user/login", {
+			let response = await api.post("/api/user/register", {
 				name: name,
 				password: password,
+				email: email
 				
 			});
 			username = "";
+			password = "";
 			email = "";
-			alert("User has been logged in!");
+			alert("User has been registered!");
 
 		} catch (error) {
 			console.log(error);
@@ -50,7 +52,7 @@
 <br>
 
 {#if username !== "" && email !== "" && password != ""}
-	<button on:click={registerUser}>login</button>
+	<button on:click={registerUser}>register</button>
 {/if}
 
 <style>

@@ -1,5 +1,7 @@
 <script>
 	export const prerender = true;
+	
+	import register from './register.svelte';
 
 	import axios from "axios";
 	let username = "";
@@ -27,6 +29,8 @@
 		}
 	}
 
+	
+
 </script>
 
 
@@ -50,8 +54,11 @@
 <br>
 
 {#if username !== "" && email !== "" && password != ""}
-	<button on:click={registerUser}>login</button>
+	<button on:click={loginUser}>login</button>
 {/if}
+
+	<a href="/register">Not registered?</a>
+	
 
 <style>
 

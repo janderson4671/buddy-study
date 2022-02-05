@@ -111,6 +111,36 @@ app.post("/api/user/login", async (req, res) => {
         console.log(error); 
         res.sendStatus(500); 
     }
-})
+});
+
+app.post("/api/user/delete", async (req, res) => {
+    try {
+        if ((req.body.username == null) || (req.body.password == null)) {
+            res.send({
+                success: false, 
+                message: "Must include both username and password.."
+            }); 
+            return; 
+        }
+        const user = await User.findOne({
+            username: req.body.username, 
+            password: req.body.password
+        });     
+        if (!user) {
+            res.send({
+                success: false, 
+                message: "User does not exist.."
+            })
+            return; 
+        }
+        await user.delete();
+        res.send({
+            success: true
+        }); 
+    } catch (error) {
+        console.log(error); 
+        res.sendStatus(500); 
+    }
+}); 
 
 app.listen(3000, () => console.log("Server listening on port 3000!")); 

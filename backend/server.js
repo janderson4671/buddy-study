@@ -90,17 +90,19 @@ app.post("/api/user/login", async (req, res) => {
             }); 
             return; 
         }
-        let user = await User.findOne({
+        const user = await User.findOne({
             username: req.body.username, 
             password: req.body.password
         }); 
         if (user) {
             res.send({
+                username: user.username, 
                 success: true, 
             });
         }
         else {
             res.send({
+                username: req.body.username,
                 success: false, 
                 message: "Either username or password is incorrect.."
             }); 

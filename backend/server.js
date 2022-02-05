@@ -42,32 +42,32 @@ app.get("/api/database/clearUsers", async (req, res) => {
 
 // Create new user
 app.post("/api/user/register", async (req, res) => {
-    if ((req.body.username == null) || (req.body.password == null) || (req.body.email == null)) {
-        res.send({
-            username: req.body.username, 
-            success: false, 
-            message: "Must include username, password, and email.."
-        })
-        return;
-    }
-    let existingUsername = await User.findOne({
-        username: req.body.username
-    }); 
-    console.log(existingUsername); 
-    if (existingUsername) {
-        res.send({
-            username: req.body.username, 
-            success: false, 
-            message: "Username already taken..",
-        }); 
-        return;
-    } 
-    const user = new User({
-        username: req.body.username, 
-        password: req.body.password, 
-        email: req.body.email,
-    }); 
     try {
+        if ((req.body.username == null) || (req.body.password == null) || (req.body.email == null)) {
+            res.send({
+                username: req.body.username, 
+                success: false, 
+                message: "Must include username, password, and email.."
+            })
+            return;
+        }
+        let existingUsername = await User.findOne({
+            username: req.body.username
+        }); 
+        console.log(existingUsername); 
+        if (existingUsername) {
+            res.send({
+                username: req.body.username, 
+                success: false, 
+                message: "Username already taken..",
+            }); 
+            return;
+        } 
+        const user = new User({
+            username: req.body.username, 
+            password: req.body.password, 
+            email: req.body.email,
+        }); 
         await user.save();
         res.send({
             username: user.username,  
@@ -78,5 +78,37 @@ app.post("/api/user/register", async (req, res) => {
         res.sendStatus(500); 
     }
 }); 
+
+// Log in an existing user
+app.post("/api/user/login", async (req, res) => {   
+    try {
+        if ((req.body.username == null) || (req.body.password == null)) {
+            res.send({
+                username: req.body.username, 
+                success: false, 
+                message: "Must include both username and password.."
+            }); 
+            return; 
+        }
+        let user = await User.findOne({
+            username: req.body.username, 
+            password: req.body.password
+        }); 
+        if (user) {
+            res.send({
+                success: true, 
+            });
+        }
+        else {
+            res.send({
+                success: false, 
+                message: "Either username or password is incorrect.."
+            }); 
+        }
+    } catch (error) {
+        console.log(error); 
+        res.sendStatus(500); 
+    }
+})
 
 app.listen(3000, () => console.log("Server listening on port 3000!")); 

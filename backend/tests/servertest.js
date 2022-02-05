@@ -19,7 +19,7 @@ let assertNotNull = function(object) {
 }
 
 let clearUsers = async function() {
-    let response = await api.get("/api/database/clearUsers");
+    let response = await await api.get("/api/database/clearUsers");
     if (!response.data.success) {
         throw "Clear User Database Failed!"
     }
@@ -49,7 +49,7 @@ let registerTests = async function registerTests() {
     
     // Test Valid Register API call
     try {
-        var response = await api.post("/api/user/register", validRegisterRequest);
+        var response = await await api.post("/api/user/register", validRegisterRequest);
     
         assertNotNull(response);
     
@@ -69,7 +69,7 @@ let registerTests = async function registerTests() {
 
     // Test Duplicate Username
     try {
-        response = await api.post("/api/user/register", validRegisterRequest);
+        response = await await api.post("/api/user/register", validRegisterRequest);
 
         assertNotNull(response);
 
@@ -86,7 +86,7 @@ let registerTests = async function registerTests() {
     
     // Test Invalid Register API Call
     try {
-        response = await api.post("/api/user/register", invalidRegisterRequest);
+        response = await await api.post("/api/user/register", invalidRegisterRequest);
         assertNotNull(response);
     
         if (response.data.success) {
@@ -138,11 +138,11 @@ let loginTests = async function loginTests() {
 
     // Clear the User database and register a single user
     await clearUsers();
-    var response = api.post("/api/user/register", registerRequest);
+    var response = await api.post("/api/user/register", registerRequest);
 
     // Valid Login Test
     try {
-        response = api.post("/api/user/login", validLoginRequest);
+        response = await api.post("/api/user/login", validLoginRequest);
         assertNotNull(response);
 
         if (!response.data.success) {
@@ -160,7 +160,7 @@ let loginTests = async function loginTests() {
 
     // User is not registered Test
     try {
-        response = api.post("/api/user/login", notUserInSystemLoginRequest);
+        response = await api.post("/api/user/login", notUserInSystemLoginRequest);
         assertNotNull(response);
 
         if (response.data.success) {
@@ -175,7 +175,7 @@ let loginTests = async function loginTests() {
 
     // Wrong Password Test
     try {
-        response = api.post("/api/user/login", wrongPasswordRequest);
+        response = await api.post("/api/user/login", wrongPasswordRequest);
         assertNotNull(response);
 
         if (response.data.success) {
@@ -190,14 +190,14 @@ let loginTests = async function loginTests() {
 
     // Null Username and Password Login Tests
     try {
-        response = api.post("/api/user/login", invalidUsernameRequest);
+        response = await api.post("/api/user/login", invalidUsernameRequest);
         assertNotNull(response);
 
         if (response.data.success) {
             throw "Login was successful with null Username";
         }
 
-        response = api.post("/api/user/login", invalidPasswordRequest);
+        response = await api.post("/api/user/login", invalidPasswordRequest);
         assertNotNull(response);
 
         if (response.data.success) {
@@ -240,16 +240,16 @@ let userDeleteTests = async function userDeleteTests() {
 
     // Clear user database and register test user
     await clearUsers();
-    var response = api.post("/api/user/register", registerRequest);
+    var response = await api.post("/api/user/register", registerRequest);
 
     // Invalid Delete Requests
     try {
-        response = api.post("/api/user/delete", invalidUsernameRequest);
+        response = await api.post("/api/user/delete", invalidUsernameRequest);
         if (response.data.success) {
             throw "Valid Delete with null username";
         }
 
-        response = api.post("/api/user/delete", invalidPasswordRequest);
+        response = await api.post("/api/user/delete", invalidPasswordRequest);
         if (response.data.success) {
             throw "Valid Delete with null password";
         }
@@ -261,7 +261,7 @@ let userDeleteTests = async function userDeleteTests() {
 
     // Valid Username Wrong Password
     try {
-        response = api.post("/api/user/delete", wrongPasswordRequest);
+        response = await api.post("/api/user/delete", wrongPasswordRequest);
         if (response.data.success) {
             throw "Valid delete given an incorrect password";
         }
@@ -273,13 +273,13 @@ let userDeleteTests = async function userDeleteTests() {
 
     // Valid Delete Test and Duplicate Delete Test
     try {
-        response = api.post("/api/user/delete", validDeleteRequest);
+        response = await api.post("/api/user/delete", validDeleteRequest);
         if (!response.data.success) {
             throw "Valid Delete Request was unsuccessful";
         }
 
         // Should fail since the user is already deleted
-        response = api.post("/api/user/delete", validDeleteRequest);
+        response = await api.post("/api/user/delete", validDeleteRequest);
         if (response.data.success) {
             throw "Successful delete when user was already deleted";
         }
@@ -296,7 +296,7 @@ let userDeleteTests = async function userDeleteTests() {
 let tests = async function() {
     // Comment out any tests that you do not need running
     await registerTests();
-    // await loginTests();
+    await loginTests();
     // await userDeleteTests();
 }
 

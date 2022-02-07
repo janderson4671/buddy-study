@@ -28,6 +28,14 @@ const userSchema = new mongoose.Schema({
     email: String,
 }); 
 
+// Schema for flashcards
+const flashCardSchema = new mongoose.Schema({
+    studysetID: String, 
+    questionNum: Number, 
+    question: String,
+    answer: String,
+}); 
+
 // Model for users
 const User = mongoose.model("User", userSchema); 
 
@@ -54,7 +62,6 @@ app.post("/api/user/register", async (req, res) => {
         let existingUsername = await User.findOne({
             username: req.body.username
         }); 
-        console.log(existingUsername); 
         if (existingUsername) {
             res.send({
                 username: req.body.username, 
@@ -142,5 +149,106 @@ app.post("/api/user/delete", async (req, res) => {
         res.sendStatus(500); 
     }
 }); 
+
+// Create a new flashcard for a study set 
+app.post("/api/flashcard/create", async (req, res) => {
+    try {
+        if ((req.body.studysetID == null) || (req.body.questionNum == null) || 
+                (req.body.questionText == null) || (req.body.answerText == null)) {
+            res.send({
+                success: false, 
+                message: "Must include study set ID, question number, question text, and answer text.."
+            }); 
+            return; 
+        }
+        let studyset = await StudySet.findOne({
+            studysetID: req.body.studysetID, 
+        }); 
+        if (!studyset) {
+            res.send({
+                success: false, 
+                message: "Study set doesn't exist..",
+            }); 
+            return;
+        } 
+        const flashCard = new FlashCard({
+            studysetID: req.body.studysetID, 
+            questionNum: req.body.questionNum, 
+            question: req.body.questionText,
+            answer: req.body.answerText,
+        }); 
+        await flashCard.save();
+        res.send({
+            success: true,
+        }); 
+    } catch (error) {
+        console.log(error); 
+        res.sendStatus(500); 
+    }   
+}); 
+
+app.post("api/flashcard/delete", async (req, res) => {
+    try {
+        if ((req.body.studysetID == null) || (req.body.questionNum == null)) {
+            res.send({
+                success: false, 
+                message: "Must include study set ID and question number.."
+            }); 
+            return; 
+        }
+        const flashCard = await FlashCard.findOne({
+            studysetID: req.body.studysetID, 
+            questionNum: req.body.questionNum, 
+        });     
+        if (!flashCard) {
+            res.send({
+                success: false, 
+                message: "Flash card does not exist.."
+            })
+            return; 
+        }
+        await flashCard.delete();
+        res.send({
+            success: true
+        }); 
+    } catch (error) {
+        console.log(error); 
+        res.sendStatus(500); 
+    }
+}); 
+
+app.post("/api/flashcard/update", async (req, res) => {
+    try {
+        if ((req.body.studysetID == null) || (req.body.questionNum == null) || 
+                (req.body.questionText == null) || (req.body.answerText == null)) {
+            res.send({
+                success: false, 
+                message: "Must include study set ID, question number, question text, and answer text.."
+            }); 
+            return; 
+        }
+        const flashCard = await FlashCard.findOne({
+            studysetID: req.body.studysetID, 
+            questionNum: req.body.questionNum, 
+        });     
+        if (!flashCard) {
+            res.send({
+                success: false, 
+                message: "Flash card does not exist.."
+            })
+            return; 
+        }
+        flashCard.questionText = req.body.questionText; 
+        flashCard.answerText = req.body.answerText;
+        await flashCard.save(); 
+        res.send({
+            success: true, 
+        }); 
+    } catch (error) {
+        console.log(error); 
+        res.sendStatus(500); 
+    }
+}); 
+
 
 app.listen(3000, () => console.log("Server listening on port 3000!")); 

@@ -99,6 +99,7 @@ Managing FlashCards:
     }
 
 "api/flashcard/delete" -> delete an existing flashcard (POST)
+    NOTE: Will cause all flashcards to be renumbered!!!
     request: {
         studysetID : string,    (NOT NULL)
         questionNum : int       (NOT NULL)
@@ -118,5 +119,11 @@ Managing FlashCards:
     response: {
         success : bool,
         message : string
-    } 
+    }
 
+"api/flashcard/allcards/:studysetID" -> retrieve all flashcards associated with a studyset (GET)
+    response: {
+        success : bool,
+        message : string,
+        list<Flashcard> : list of flashcards (Orderded by question number)
+    }

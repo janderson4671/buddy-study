@@ -1,9 +1,16 @@
 API Endpoints 
 
+--------------------------------------------------------------------------------------------------------------------
 Database Management:
 
-"api/database/clear" -> Clears everything from the database (GET)
+"api/database/clearUsers" -> Clears everything from the user collection (GET)
     response: {
+        success : bool,     (NOT NULL)
+        message : string
+    }
+
+"api/database/clearStudySets" -> Clears everything from the study-set collection (GET)
+    respone: {
         success : bool,     (NOT NULL)
         message : string
     }

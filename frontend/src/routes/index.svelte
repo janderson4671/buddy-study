@@ -1,56 +1,143 @@
-<script context="module">
-	export const prerender = true;
-</script>
-
 <script>
+	export const prerender = true;
+	import register from './register.svelte';
+
+	import axios from "axios";
+	import Home from './home.svelte';
+	import Login from './login.svelte';
+
+	// let logoImg = "../img/rading.png"
+	let username = "";
+	let password = "";
+	let email = "";
+
+	const api = axios.create({
+		baseURL : "http://localhost:3000"
+	});
+
+	async function loginUser() {
+		try {
+			let response = await api.post("/api/user/login", {
+				name: name,
+				password: password,
+				
+			});
+			username = "";
+			email = "";
+			alert("User has been logged in!");
+
+		} catch (error) {
+			console.log(error);
+			alert("Error!");
+		}
+	}
+
 </script>
 
-<svelte:head>
+
+<!-- <svelte:head>
 	<title>Home</title>
-</svelte:head>
+	
+</svelte:head> -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<div class="title">
+	<div class='blank'>
+		Buddy<img class ="logoImg"src="./reading.png" alt="logo_png" width="6%">
+	</div>
+	STUDY!
+</div>
 
-<section>
-	<h1>
-		<div class="welcome">
-			<picture>
-				<source srcset="svelte-welcome.webp" type="image/webp" />
-				<img src="svelte-welcome.png" alt="Welcome" />
-			</picture>
-		</div>
+<div class="user_input">
+	<p class ="text">username</p>
+	<input bind:value={username} placeholder="username">
+	<p class ="text">password</p>
+	<input bind:value={password} placeholder="password">
+	<p class ="text">email</p>
+	<input bind:value={email} placeholder="email">
+</div>
 
-		to your new<br />SvelteKit app
-	</h1>
+<div class="login_button">
+	<!-- {#if username !== "" && email !== "" && password != ""}
+	{/if} -->
+	<button on:click={loginUser}>login</button>
+</div>
 
-	<h2>
-		try editing <strong>src/routes/index.svelte</strong>
-	</h2>
-</section>
+<div class="space_between_login_reg"></div>
+
+<div class="register_button">
+	<a href="/register">Not registered?</a>
+</div>
 
 <style>
-	section {
+
+	input {
+		height: 3%;
+		width: 25%;
+		padding: 2%;
+		margin: 1rem;
+		align-self: center;
+	}
+
+	button {
+		border-radius: 30px;
+		position: absolute;
+		width: 18vw;
+		height: 5vw;
+		font-family: 'Fira Sans Condensed', sans-serif;
+		font-style: normal;
+		font-weight: normal;
+		font-size: 2vw;
+		text-align: center;
+		background:#000000;
+		color: white;
+	}
+
+	.title {
+		color: #000000;
+		font-family: 'Archivo Black', sans-serif;
+		text-align: center;
+		font-size: 5vw;
+		margin: 5%;
+	}
+
+	.blank {
+		padding-left: 1.5%;
+	}
+
+	.user_input {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		align-items: center;
-		flex: 1;
+		font-family: 'Fira Sans Condensed', sans-serif;
+		font-size: 1.25vw;
+		margin: 0;
 	}
 
-	h1 {
-		width: 100%;
+	.text {
+		padding-left: 35.5%;
+		margin: 0;
 	}
 
-	.welcome {
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
+	.login_button {
+		display: flex;
+		justify-content: center;
+		margin: 3%
 	}
 
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
+	.register_button {
+		display: flex;
+		justify-content: center;
+		font-size: 1.25vw;
+		margin: 3%;
 	}
+
+	.space_between_login_reg {
+		margin: 7%;
+	}
+
+	
 </style>
+	
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Sans+Condensed&display=swap" rel="stylesheet">

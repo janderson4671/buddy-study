@@ -7,6 +7,12 @@ const mongoose = require("mongoose");
 
 const app = express(); 
 
+// Enable CORS on the server
+const cors = require("cors");
+app.use(cors({
+    origin: "*"
+}));
+
 // Make sure to interpret request values as strings
 app.use(bodyParser.urlencoded({
     extended: false

@@ -47,11 +47,24 @@ const User = mongoose.model("User", userSchema);
 
 // Delete all users
 app.get("/api/database/clearUsers", async (req, res) => {
-    User.collection.drop();
+    try {
+        User.collection.drop();
+        res.send({
+            success: true,
+            message: "User Database Cleared!"
+        });
+    } catch (error) {
+        console.log(error);     
+        res.sendStatus(500); 
+    }
+})
+
+app.get("/api/database/clearStudySets", async (req, res) => {
+    StudySet.collection.drop()
     res.send({
         success: true,
-        message: "Database Cleared!"
-    })
+        message: "StudySet Database Cleared!"
+    }); 
 })
 
 // Create new user
@@ -126,6 +139,7 @@ app.post("/api/user/login", async (req, res) => {
     }
 });
 
+// Delete a user
 app.post("/api/user/delete", async (req, res) => {
     try {
         if ((req.body.username == null) || (req.body.password == null)) {
@@ -193,6 +207,7 @@ app.post("/api/flashcard/create", async (req, res) => {
     }   
 }); 
 
+// Delete a flashcard
 app.post("api/flashcard/delete", async (req, res) => {
     try {
         if ((req.body.studysetID == null) || (req.body.questionNum == null)) {
@@ -223,6 +238,7 @@ app.post("api/flashcard/delete", async (req, res) => {
     }
 }); 
 
+// Change a flashcard's data
 app.post("/api/flashcard/update", async (req, res) => {
     try {
         if ((req.body.studysetID == null) || (req.body.questionNum == null) || 
@@ -255,6 +271,5 @@ app.post("/api/flashcard/update", async (req, res) => {
         res.sendStatus(500); 
     }
 }); 
-
 
 app.listen(3000, () => console.log("Server listening on port 3000!")); 

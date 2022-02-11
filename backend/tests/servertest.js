@@ -297,7 +297,7 @@ let tests = async function() {
     // Comment out any tests that you do not need running
     await registerTests();
     await loginTests();
-    // await userDeleteTests();
+    await userDeleteTests();
 }
 
 // Run test suite

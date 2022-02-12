@@ -5,6 +5,7 @@
 	let username = "";
 	let password = "";
 	let email = "";
+	let src = "../../static/register.png"
 
 	const api = axios.create({
 		baseURL : "http://localhost:3000"
@@ -37,23 +38,32 @@
 	
 </svelte:head>
 
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<div class="title">
+	<img {src} alt="register">
+	<br>
+	Create<br>your own<br>account!
+	<br>
+	
+</div>
 
-<h1>Welcome to Buddy Study!</h1>
 
-<h2>
-	Register to start studying!
-</h2>
+<!--<img {src} alt="register">-->
 
-<input bind:value={username} placeholder="username">
-<br>
-<input bind:value={password} placeholder="password">
-<br>
-<input bind:value={email} placeholder="email">
-<br>
+<div class="register_input">
+	<p class="text">username</p>
+	<input bind:value={username} >
+	<p class="text">password</p>
+	<input bind:value={password}>
+	<p class="text">email</p>
+	<input bind:value={email}>
+</div>
 
-{#if username !== "" && email !== "" && password != ""}
-	<button on:click={registerUser}>register</button>
-{/if}
+<div class="register_button">
+	{#if username !== "" && email !== "" && password != ""}
+		<button on:click={registerUser}>register</button>
+	{/if}
+</div>
 
 <style>
 
@@ -72,23 +82,65 @@
 		width: 100%;
 	}
 
+	img {
+		height: 125px;
+		width: 124px;
+		left: 134px;
+		top: 100px;
+		border-radius: 0px;
+		align: center;
+
+	}
+	
+
 	button {
 		border-radius: 30px;
 		position: absolute;
 		width: 211px;
 		height: 57.23px;
-		font-family: Fira Sans;
+		font-family: 'Fira Sans Condensed', sans-serif;
 		font-style: normal;
 		font-weight: normal;
 		font-size: 34px;
 		line-height: 41px;
 		text-align: center;
-		background: 79c8f4;
-		color: #000000;
-
-
+		background: #000000;
+		color: white;
 		
+		
+	}
+
+	.title {
+		color: #000000;
+		font-family: 'Archivo Black', sans-serif;
+		text-align: center;
+		font-size: 36px;
+		margin: 5%;
+	}
+
+	.text {
+		padding-left: 35.5%;
+		margin: 0;
+	}
+
+	.register_input {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		font-family: 'Fira Sans Condensed', sans-serif;
+		font-size: 1.25vw;
+		margin: 0;
+	}
+
+	.register_button {
+		display: flex;
+		justify-content: center;
+		margin: 3%
 	}
 
 	
 </style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Sans+Condensed&display=swap" rel="stylesheet">

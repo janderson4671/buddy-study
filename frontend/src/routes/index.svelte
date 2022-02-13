@@ -1,34 +1,34 @@
 <script>
 	export const prerender = true;
-	import register from './register.svelte';
 
 	import axios from "axios";
-	import Home from './home.svelte';
-	import Login from './login.svelte';
 
 	// let logoImg = "../img/rading.png"
-	let username = "";
-	let password = "";
-	let email = "";
+	let username_input = null;
+	let password_input = null;
 
 	const api = axios.create({
 		baseURL : "http://localhost:3000"
 	});
 
 	async function loginUser() {
+
 		try {
-			let response = await api.post("/api/user/login", {
-				name: name,
-				password: password,
+			let loginRequest = {
+				username: username_input,
+				password: password_input,
 				
-			});
-			username = "";
-			email = "";
-			alert("User has been logged in!");
+			};
+			console.log(username_input);
+			console.log(password_input);
+
+			var response = await api.post("/api/user/login", loginRequest);
+			alert(response.message);
+			// alert("User has been logged in!");
 
 		} catch (error) {
 			console.log(error);
-			alert("Error!");
+			alert("Login is unsuccessful!");
 		}
 	}
 
@@ -49,11 +49,11 @@
 
 <div class="user_input">
 	<p class ="text">username</p>
-	<input bind:value={username} placeholder="username">
+	<input bind:value={username_input} placeholder="username">
 	<p class ="text">password</p>
-	<input bind:value={password} placeholder="password">
-	<p class ="text">email</p>
-	<input bind:value={email} placeholder="email">
+	<input bind:value={password_input} placeholder="password">
+	<!-- <p class ="text">email</p>
+	<input bind:value={email} placeholder="email"> -->
 </div>
 
 <div class="login_button">

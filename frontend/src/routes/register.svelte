@@ -2,6 +2,7 @@
 	export const prerender = true;
 
 	import axios from "axios";
+
 	let username = "";
 	let password = "";
 	let email = "";
@@ -13,20 +14,17 @@
 
 	async function registerUser() {
 		try {
-			let response = await api.post("/api/user/register", {
-				name: name,
+			let registerRequest = {
+				name: username,
 				password: password,
 				email: email
-				
-			});
-			username = "";
-			password = "";
-			email = "";
+			};
+			var response = await api.post("/api/user/register", registerRequest);
 			alert("User has been registered!");
 
 		} catch (error) {
 			console.log(error);
-			alert("Error!");
+			alert("register failed!");
 		}
 	}
 
@@ -59,11 +57,15 @@
 	<input bind:value={email}>
 </div>
 
-<div class="register_button">
-	{#if username !== "" && email !== "" && password != ""}
-		<button on:click={registerUser}>register</button>
-	{/if}
-</div>
+<a href="/">
+	<div class="register_button">
+		{#if username !== "" && email !== "" && password != ""}
+			<button on:click={registerUser}>register</button>
+		{/if}
+	</div>
+</a>
+
+<div class="blank"></div>
 
 <style>
 
@@ -96,18 +98,15 @@
 	button {
 		border-radius: 30px;
 		position: absolute;
-		width: 211px;
-		height: 57.23px;
+		width: 18vw;
+		height: 5vw;
 		font-family: 'Fira Sans Condensed', sans-serif;
 		font-style: normal;
 		font-weight: normal;
-		font-size: 34px;
-		line-height: 41px;
+		font-size: 2vw;
 		text-align: center;
-		background: #000000;
-		color: white;
-		
-		
+		background:#000000;
+		color: white;;
 	}
 
 	.title {
@@ -136,6 +135,10 @@
 		display: flex;
 		justify-content: center;
 		margin: 3%
+	}
+
+	.blank {
+		margin: 8%;
 	}
 
 	

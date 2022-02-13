@@ -109,8 +109,8 @@ app.post("/api/user/login", async (req, res) => {
         }); 
         if (user) {
             res.send({
-                username: user.username, 
-                success: true, 
+                username: user.username,
+                success: true,
             });
         }
         else {

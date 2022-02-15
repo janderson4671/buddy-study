@@ -70,11 +70,29 @@ app.get("/api/database/clearUsers", async (req, res) => {
 })
 
 app.get("/api/database/clearStudySets", async (req, res) => {
-    StudySet.collection.drop()
-    res.send({
-        success: true,
-        message: "StudySet Database Cleared!"
-    }); 
+    try {
+        StudySet.collection.drop()
+        res.send({
+            success: true,
+            message: "StudySet Database Cleared!"
+        }); 
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+})
+
+app.get("/api/databasse/clearFlashcards", async (req, res) => {
+    try {
+        FlashCard.collection.drop()
+        res.send({
+            success : true,
+            message: "FlashCard Database Cleared!"
+        });
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
 })
 
 // Create new user

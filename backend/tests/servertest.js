@@ -19,9 +19,23 @@ let assertNotNull = function(object) {
 }
 
 let clearUsers = async function() {
-    let response = await await api.get("/api/database/clearUsers");
+    let response = await api.get("/api/database/clearUsers");
     if (!response.data.success) {
         throw "Clear User Database Failed!"
+    }
+}
+
+let clearStudySets = async function() {
+    let response = await api.get("/api/database/clearStudySets");
+    if (!response.data.success) {
+        throw "Clear StudySet Database Failed!"
+    }
+}
+
+let clearFlashcards = async function() {
+    let response = await api.get("/api/database/clearFlashcards");
+    if (!response.data.success) {
+        throw "Clear Flashcard Database Failed!"
     }
 }
 /******************************************************************************/
@@ -290,6 +304,280 @@ let userDeleteTests = async function userDeleteTests() {
     }
 }
 
+/************************** STUDYSET TESTS ***************************/
+let studysetTests = async function studysetTests() {
+
+    console.log("\n -------------------- BEGIN STUDYSET TESTS -------------------- \n");
+
+    let registerRequest = {
+        username: "person123",
+        password: "password",
+        email: "randomemail@email.com"
+    }
+    let validStudySetCreateRequest = {
+        username : "person123",
+        subject : "biology"
+    }
+    let anotherValidStudySet = {
+        username : "person123",
+        subject : "tennis"
+    }
+    let invalidStudySetCreateRequest = {
+        username : "123person",
+        subject : "chemistry"
+    }
+    var response = null;
+    var studySetIDOne = null;
+    var studySetIDTwo = null;
+
+    // clear the study set database and user database
+    clearStudySets()
+    clearUsers()
+
+    // register user in system
+    response = await api.post("/api/user/register", registerRequest);
+
+    // Create tests
+    try {
+        response = await api.post("/api/studyset/create", validStudySetCreateRequest);
+        studySetIDOne = response.data.studysetID;
+        if (!response.data.success) {
+            throw "Valid study set create was unsuccessful"
+        }
+
+        resposne = await api.post("/api/studyset/create", anotherValidStudySet);
+        studySetIDTwo = response.data.studysetID;
+        if (!response.data.success) {
+            throw "valid study set create was unsuccessful"
+        }
+
+        // Invalid study set create request
+        response = await api.post("/api/studyset/create", invalidStudySetCreateRequest);
+        if (response.data.success) {
+            throw "study set made for user that does not exist"
+        }
+
+        reportSuccess("Passed Basic Create tests");
+    } catch (error) {
+        reportFailure(error);
+    }
+
+    // Retreival tests
+    try {
+        resposne = await api.get("/api/studyset/allsets/person123");
+        if (!response.data.success) {
+            throw "unable to get study sets for existing user"
+        }
+        if (response.data.studysets.length() != 2) {
+            throw "user does not have exactly 2 study sets"
+        }
+
+        // Invalid retreival
+        response = await api.get("/api/studyset/allsets/123person");
+        if (response.data.success) {
+            throw "successful study set retreival for non-existing user"
+        }
+
+        reportSuccess("Passed StudySet Retreival Tests")
+    } catch (error) {
+        reportFailure(error);
+    }
+
+    let validDeleteRequest = {
+        username : "person123",
+        studysetID : studySetIDOne
+    }
+    let invalidDeleteRequest = {
+        username : "123person",
+        studysetID : studySetIDTwo
+    }
+
+    // Delete Tests
+    try {
+        resposne = await api.post("/api/studyset/delete", validDeleteRequest);
+        if (!response.data.success) {
+            throw "Valid delete was unsuccessful for study set"
+        }
+
+        response = await api.post("/api/studyset/delete", invalidDeleteRequest)
+        if (response.data.success) {
+            throw "Invalid delete was successful for non existing user"
+        }
+
+        reportSuccess("Passed Delete Tests for Study Sets")
+    } catch (error) {
+        reportFailure(error);
+    }
+}
+
+/************************** FLASHCARD TESTS ***************************/
+let flashcardTests = async function flashcardTests() {
+
+    console.log("\n -------------------- BEGIN FLASHCARD TESTS -------------------- \n");
+
+    // Needed for setup
+    clearUsers()
+    clearStudySets()
+
+    let registerRequest = {
+        username: "person123",
+        password: "password",
+        email: "randomemail@email.com"
+    }
+    let validStudySetCreateRequest = {
+        username : "person123",
+        subject : "biology"
+    }
+    var studysetID = null;
+    var response = null;
+
+    response = await api.post("/api/user/register", registerRequest);
+    response = await api.post("/api/studyset/create", validStudySetCreateRequest);
+    studysetID = response.data.studysetID
+
+
+    let validFlashCardOne = {
+        studysetID : studysetID,
+        questionNum : 1,
+        questionText : "2 + 2 = ?",
+        answerText : "4"
+    }
+    let validFlashCardTwo = {
+        studysetID : studysetID,
+        questionNum : 2,
+        questionText : "What is the capital of Arizona?",
+        answerText : "Phoenix"
+    }
+    let updateFlashCardTwo = {
+        studysetID : "FakeID",
+        questionNum : 2,
+        questionText : "What is the capital of Utah?",
+        answerText : "Salt Lake City"
+    }
+    let invalidFlashCardRequest = {
+        studysetID : null,
+        questionNum : 1,
+        questionText : "2 + 2 = ?",
+        answerText : "4"
+    }
+    let deleteFlashCardOne = {
+        studysetID : studysetID,
+        questionNum : 1
+    }
+    let invalidDelete = {
+        studysetID : "notASetID",
+        questionNum : 25
+    }
+    let invalidUpdate = {
+        studysetID : studysetID,
+        questionNum : 56,
+        questionText : "Do sharks swim?",
+        answerText : "Yes"
+    }
+
+    // Clear the database
+    clearFlashcards();
+
+    // // Create flashcard test
+    try {
+       // Valid Request
+       response = await api.post("/api/flashcard/create", validFlashCardOne);
+       if (!response.data.success) {
+           throw "Flashcard 1 not created and should have been"
+       }
+
+       // Subsequent valid request
+       response = await api.post("/api/flashcard/create", validFlashCardTwo);
+       if (!response.data.success) {
+           throw "Flashcard 2 not created and should have been"
+       }
+
+       // Invalid request
+       response = await api.post("/api/flashcard/create", invalidFlashCardRequest);
+       if (respose.data.success) {
+           throw "Invalid Flashcard create request was successful"
+       }
+
+       reportSuccess("Passed Basic FlashCard Create Tests");
+    } catch (error) {
+        reportFailure(error);
+    }
+
+    // Delete Flashcard test
+    try {
+        // Valid Delete
+        resposne = await api.post("/api/flashcard/delete", deleteFlashCardOne);
+        if (!resposne.data.success) {
+            throw "FlashCard 1 was not deleted and should have been"
+        }
+
+        // Invalid Delete
+        response = await api.post("/api/flashcard/delete", deleteFlashCardOne);
+        if (response.data.success) {
+            throw "FlashCard 1 was deleted twice"
+        }
+
+        // Invalid Delete
+        response = await api.post("/api/flashcard/delete", invalidDelete);
+        if (response.data.success) {
+            throw "Invalid Delete request was successful"
+        }
+
+        reportSuccess("Passed FlashCard Delete Tests")
+    } catch (error) {
+        reportFailure(error)
+    }
+
+    // Update Flashcard Test
+    try {
+        // Valid Update
+        response = await api.post("/api/flashcard/update", updateFlashCardTwo);
+        if (!response.data.success) {
+            throw "Valid flashcard Update was unsuccessful"
+        }
+
+        // Invalid Update
+        response = await api.post("/api/flashcard/update", invalidUpdate);
+        if (response.data.success) {
+            throw "Invalid flashcard Update was successful"
+        }
+
+        reportSuccess("Passed flashcard Update Tests")
+    } catch (error) {
+        reportFailure(error)
+    }
+
+    // Reinsert question 1
+    response = await api.post("/api/flashcard/create", validFlashCardOne);
+
+    // Test for retreiving all flashcards for a study set
+    try {
+        // Should get all flashcards with proper order by question number
+        response = await api.get("/api/flashcard/allcards/" + validFlashCardOne.studysetID);
+        if (!resposne.data.success) {
+            throw "Unsuccessful retrieval of flashcards in studyset" + validFlashCardOne.studysetID
+        }
+
+        // Check the size and order
+        if (response.data.flashCards.length() != 2) {
+            throw "Did not get exactly 2 flashcards from the database"
+        }
+        if (response.data.flashCards[0].questionNum == 2) {
+            throw "Incorrect ordering of flashcards by question number"
+        }
+
+        // Invalid retrieval of flashcards for non-existing study set
+        resposne = await api.get("/api/flashcard/allcards/dontexist");
+        if (response.data.success) {
+            throw "Successful response for getting flashcards from non-existing study set"
+        }
+
+        reportSuccess("Passed flashcard retrieval tests")
+    } catch (error) {
+        reportFailure(error)
+    }
+}
+
 /***************************** Run Tests ********************************/
 
 // MAKE SURE THAT THE DATABASE URL IS "mongodb://localhost:27017/buddy-study-test"
@@ -298,6 +586,8 @@ let tests = async function() {
     await registerTests();
     await loginTests();
     await userDeleteTests();
+    await studysetTests();
+    await flashcardTests();
 }
 
 // Run test suite

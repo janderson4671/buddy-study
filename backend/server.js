@@ -254,7 +254,7 @@ app.post("/api/flashcard/create", async (req, res) => {
 }); 
 
 // Delete a flashcard
-app.post("api/flashcard/delete", async (req, res) => {
+app.post("/api/flashcard/delete", async (req, res) => {
     try {
         if ((req.body.studysetID == null) || (req.body.questionNum == null)) {
             res.send({
@@ -318,7 +318,8 @@ app.post("/api/flashcard/update", async (req, res) => {
     }
 }); 
 
-app.get("api/flashcard/allcards/:studysetID", async (req, res) => {
+// Get flashcards for a given study set
+app.get("/api/flashcard/allcards/:studysetID", async (req, res) => {
     try {
         const studySet = StudySet.findOne({
             studysetID: req.params.studysetID, 
@@ -357,7 +358,7 @@ app.get("api/flashcard/allcards/:studysetID", async (req, res) => {
 }); 
 
 // Create a new study set
-app.post("api/studyset/create", async (req, res) => {
+app.post("/api/studyset/create", async (req, res) => {
     try {
         if ((req.body.username == null) || (req.body.subject == null)) {
             res.send({
@@ -366,13 +367,23 @@ app.post("api/studyset/create", async (req, res) => {
             });
             return; 
         }
-        existingStudySet = await StudySet.findOne({
+        const existingStudySet = await StudySet.findOne({
             subject: req.body.subject, 
         }); 
         if (existingStudySet) {
             res.send({
                 success: false, 
                 message: "You already have a study set with that subject name..", 
+            }); 
+            return; 
+        }
+        const user = await User.findOne({
+            username: req.body.username, 
+        }); 
+        if (!user) {
+            res.send({
+                success: false, 
+                message: "User does not exist, cannot create studyset..", 
             }); 
             return; 
         }
@@ -393,7 +404,7 @@ app.post("api/studyset/create", async (req, res) => {
 }); 
 
 // Delete a study set and all associated flashcards
-app.post ("api/studyset/delete", async (req, res) => {
+app.post ("/api/studyset/delete", async (req, res) => {
     try {
         if ((req.body.username == null) || (req.body.subject == null)) {
             res.send({
@@ -437,7 +448,7 @@ app.post ("api/studyset/delete", async (req, res) => {
 }); 
 
 // Retrieve all studysets associated with a user
-app.get("api/studyset/allsets/:username", async (req, res) => {
+app.get("/api/studyset/allsets/:username", async (req, res) => {
     try {
         // TODO: check if we need to be testing for a null username here. ?? 
         const cursor = await StudySet.find({

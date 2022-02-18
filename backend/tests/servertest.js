@@ -506,6 +506,10 @@ let flashcardTests = async function flashcardTests() {
         studysetID : studysetID,
         questionNum : 1
     }
+    let deleteFlashCardTwo = {
+        studysetID : studysetID,
+        questionNum : 2
+    }
     let invalidDelete = {
         studysetID : "notASetID",
         questionNum : 25
@@ -554,10 +558,10 @@ let flashcardTests = async function flashcardTests() {
         }
 
         // Invalid Delete
-        response = await api.post("/api/flashcard/delete", deleteFlashCardOne);
+        response = await api.post("/api/flashcard/delete", deleteFlashCardTwo);
         if (response.data.success) {
             console.log("Error Message: " + response.data.message); 
-            throw "FlashCard 1 was deleted twice"
+            throw "Flashcard 2 was not re-assigned as #1"
         }
 
         // Invalid Delete
@@ -592,8 +596,25 @@ let flashcardTests = async function flashcardTests() {
         reportFailure(error);
     }
     
+    
+    /*  Doesn't this cause a problem? Q2 will have been re-numbered now as Q1, so this valid request is no
+        longer valid because it specifies (questionNum=1). This makes me think we change the api call for 
+        'create flashcard' to not include question num. It should just append it to the back of the list. 
+
+        In addition, I currently set the Update endpoint for flashcards to allow changes only to text, 
+        both question and answer, but not question number. Did you want them to be able to rearrange the list? 
+        This would require a small algorithm to remove the item from its current place, insert somewhere else, 
+        and shift all affected items accordingly. Up to you @Jason.  
+
+        | | | | | | | | |
+        V V V V V V V V V                                           
+    */ 
     // Reinsert question 1
     response = await api.post("/api/flashcard/create", validFlashCardOne);
+    /* 
+        ^ ^ ^ ^ ^ ^ ^ ^ ^
+        | | | | | | | | | 
+    */ 
 
     // Test for retreiving all flashcards for a study set
     try {

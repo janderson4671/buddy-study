@@ -98,7 +98,8 @@ app.get("/api/database/clearFlashcards", async (req, res) => {
 // Create new user
 app.post("/api/user/register", async (req, res) => {
     try {
-        if ((req.body.username == null) || (req.body.password == null) || (req.body.email == null)) {
+        if ((req.body.username == null) || (req.body.password == null) || (req.body.email == null)
+                || (req.body.username == "") || (req.body.password == "") || (req.body.email == "")) {
             res.send({
                 username: req.body.username, 
                 success: false, 
@@ -136,7 +137,8 @@ app.post("/api/user/register", async (req, res) => {
 // Log in an existing user
 app.post("/api/user/login", async (req, res) => {   
     try {
-        if ((req.body.username == null) || (req.body.password == null)) {
+        if ((req.body.username == null) || (req.body.password == null)
+                || (req.body.username == "") || (req.body.password == "")) {
             res.send({
                 username: req.body.username, 
                 success: false, 
@@ -170,7 +172,8 @@ app.post("/api/user/login", async (req, res) => {
 // Delete a user
 app.post("/api/user/delete", async (req, res) => {
     try {
-        if ((req.body.username == null) || (req.body.password == null)) {
+        if ((req.body.username == null) || (req.body.password == null)
+                (req.body.username == "") || (req.body.password == "")) {
             res.send({
                 success: false, 
                 message: "Must include both username and password.."
@@ -212,8 +215,9 @@ app.post("/api/user/delete", async (req, res) => {
 // Create a new flashcard for a study set 
 app.post("/api/flashcard/create", async (req, res) => {
     try {
-        if ((req.body.studysetID == null) || (req.body.questionNum == null) || 
-                (req.body.questionText == null) || (req.body.answerText == null)) {
+        if ((req.body.studysetID == null) || (req.body.questionNum == null) 
+                || (req.body.questionText == null) || (req.body.answerText == null)
+                || (req.body.studysetID == "") || (req.body.questionText == "") || (req.body.answerText == "")) {
             res.send({
                 success: false, 
                 message: "Must include study set ID, question number, question text, and answer text.."
@@ -249,7 +253,7 @@ app.post("/api/flashcard/create", async (req, res) => {
 // Delete a flashcard
 app.post("/api/flashcard/delete", async (req, res) => {
     try {
-        if ((req.body.studysetID == null) || (req.body.questionNum == null)) {
+        if ((req.body.studysetID == null) || (req.body.questionNum == null) || (req.body.studysetID == "")) {
             res.send({
                 success: false, 
                 message: "Must include study set ID and question number.."
@@ -282,8 +286,9 @@ app.post("/api/flashcard/delete", async (req, res) => {
 // Change a flashcard's data
 app.post("/api/flashcard/update", async (req, res) => {
     try {
-        if ((req.body.studysetID == null) || (req.body.questionNum == null) || 
-                (req.body.questionText == null) || (req.body.answerText == null)) {
+        if ((req.body.studysetID == null) || (req.body.questionNum == null) 
+                || (req.body.questionText == null) || (req.body.answerText == null)
+                || (req.body.studysetID == "") || (req.body.questionText == "") || (req.body.answerText == "")) {
             res.send({
                 success: false, 
                 message: "Must include study set ID, question number, question text, and answer text.."

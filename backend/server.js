@@ -272,7 +272,16 @@ app.post("/api/flashcard/delete", async (req, res) => {
             return; 
         }
         await flashCard.delete();
-        // TODO: Reorder all flash cards here:
+        
+        const flashCards = await FlashCard.find({
+            studysetID: req.body.studysetID, 
+        }); 
+        count = 1
+        for await (const card of flashCards) {
+            card.questionNum = count; 
+            count++; 
+            await card.save(); 
+        }  
 
         res.send({
             success: true

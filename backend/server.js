@@ -82,7 +82,7 @@ app.get("/api/database/clearStudySets", async (req, res) => {
     }
 })
 
-app.get("/api/databasse/clearFlashcards", async (req, res) => {
+app.get("/api/database/clearFlashcards", async (req, res) => {
     try {
         FlashCard.collection.drop()
         res.send({
@@ -192,24 +192,17 @@ app.post("/api/user/delete", async (req, res) => {
             username: req.body.username, 
         }); 
         for await (const studySet of setCursor) {
-            const deleteCardsResult = await StudySet.deleteMany({
+            const deleteCardsResult = await FlashCard.deleteMany({
                 studysetID: studySet.studysetID, 
             }); 
-            const deleteSetResult = await StudySet.delete({
-                studysetID: studySet.studysetID, 
-            }); 
-            if (!deleteCardsResult.acknowledged || !deleteSetResult.acknowledged) {
-                res.send({
-                    success: false, 
-                    message: "Delete failed..", 
-                }); 
-                return; 
-            }
         }  
+        const deleteSetResult = await StudySet.deleteMany({
+            username: req.body.username, 
+        }); 
         await user.delete();
         res.send({
             success: true
-        }); 
+        });     
     } catch (error) {
         console.log(error); 
         res.sendStatus(500); 
@@ -227,7 +220,7 @@ app.post("/api/flashcard/create", async (req, res) => {
             }); 
             return; 
         }
-        let studyset = await StudySet.findOne({
+        const studyset = await StudySet.findOne({
             studysetID: req.body.studysetID, 
         }); 
         if (!studyset) {
@@ -275,6 +268,8 @@ app.post("/api/flashcard/delete", async (req, res) => {
             return; 
         }
         await flashCard.delete();
+        // TODO: Reorder all flash cards here: 
+        
         res.send({
             success: true
         }); 
@@ -321,7 +316,7 @@ app.post("/api/flashcard/update", async (req, res) => {
 // Get flashcards for a given study set
 app.get("/api/flashcard/allcards/:studysetID", async (req, res) => {
     try {
-        const studySet = StudySet.findOne({
+        const studySet = await StudySet.findOne({
             studysetID: req.params.studysetID, 
         }); 
         if (!studySet) {
@@ -331,12 +326,10 @@ app.get("/api/flashcard/allcards/:studysetID", async (req, res) => {
             }); 
             return; 
         }
-
-        const cursor = await FlashCard.find({
+        const flashCards = await FlashCard.find({
             studysetID: studySet.studysetID, 
         }); 
-        const flashCards = await cursor.toArray(); 
-        if (!flashCards) {
+        if (!flashCards.length) {
             res.send({
                 success: true, 
                 message: "No flash cards found.."
@@ -395,7 +388,7 @@ app.post("/api/studyset/create", async (req, res) => {
         await studySet.save(); 
         res.send({
             success: true, 
-            studysetID: studySet.studySetID, 
+            studysetID: studySet.studysetID, 
         }); 
     } catch (error) {
         console.log(error); 
@@ -404,18 +397,18 @@ app.post("/api/studyset/create", async (req, res) => {
 }); 
 
 // Delete a study set and all associated flashcards
-app.post ("/api/studyset/delete", async (req, res) => {
+app.post("/api/studyset/delete", async (req, res) => {
     try {
-        if ((req.body.username == null) || (req.body.subject == null)) {
+        if ((req.body.username == null) || (req.body.studysetID == null)) {
             res.send({
                 success: false, 
-                message: "Must include username and subject..", 
+                message: "Must include username and studysetID..", 
             }); 
             return; 
         }
-        const studySet = StudySet.findOne({
+        const studySet = await StudySet.findOne({
             username: req.body.username, 
-            subject: req.body.subject, 
+            studysetID: req.body.studysetID, 
         }); 
         if (!studySet) {
             res.send({
@@ -426,17 +419,8 @@ app.post ("/api/studyset/delete", async (req, res) => {
         }
         const deleteCardsResult = await StudySet.deleteMany({
             studysetID: studySet.studysetID, 
-        }); 
-        const deleteSetResult = await StudySet.delete({
-            studysetID: studySet.studysetID, 
-        }); 
-        if (!deleteCardsResult.acknowledged || !deleteSetResult.acknowledged) {
-            res.send({
-                success: false, 
-                message: "Delete failed..", 
-            }); 
-            return; 
-        }
+        });
+        await studySet.delete(); 
         res.send({
             success: true, 
             message: `${deleteCardsResult.deletedCount} flash cards deleted. ${studySet.subject} study set deleted.`, 
@@ -451,11 +435,10 @@ app.post ("/api/studyset/delete", async (req, res) => {
 app.get("/api/studyset/allsets/:username", async (req, res) => {
     try {
         // TODO: check if we need to be testing for a null username here. ?? 
-        const cursor = await StudySet.find({
+        const studySets = await StudySet.find({
             username: req.params.username, 
         }); 
-        const studySets = await cursor.toArray(); 
-        if (!studySets) {
+        if (!studySets.length) {
             res.send({
                 success: true, 
                 message: "No study sets found.."

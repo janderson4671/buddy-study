@@ -611,6 +611,9 @@ let flashcardTests = async function flashcardTests() {
         if (response.data.flashCards[0].questionNum == 2) {
             throw "Incorrect ordering of flashcards by question number"
         }
+        if (response.data.flashCards[0].questionText != validFlashCardTwo.questionText) {
+            throw "Flashcards were not re-numbered when one was deleted" 
+        }
 
         // Invalid retrieval of flashcards for non-existing study set
         response = await api.get("/api/flashcard/allcards/dontexist");

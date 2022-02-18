@@ -173,7 +173,7 @@ app.post("/api/user/login", async (req, res) => {
 app.post("/api/user/delete", async (req, res) => {
     try {
         if ((req.body.username == null) || (req.body.password == null)
-                (req.body.username == "") || (req.body.password == "")) {
+                || (req.body.username == "") || (req.body.password == "")) {
             res.send({
                 success: false, 
                 message: "Must include both username and password.."
@@ -272,8 +272,8 @@ app.post("/api/flashcard/delete", async (req, res) => {
             return; 
         }
         await flashCard.delete();
-        // TODO: Reorder all flash cards here: 
-        
+        // TODO: Reorder all flash cards here:
+
         res.send({
             success: true
         }); 

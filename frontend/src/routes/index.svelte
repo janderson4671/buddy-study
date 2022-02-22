@@ -36,10 +36,12 @@
 </script>
 
 
-<!-- <svelte:head>
-	<title>Home</title>
+<svelte:head>
+	<title>Buddy Study</title>
 	
-</svelte:head> -->
+</svelte:head>
+
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <div class="title">

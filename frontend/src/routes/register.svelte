@@ -39,7 +39,8 @@
 
 
 <svelte:head>
-	<title>Home</title>
+	<title>Buddy Study</title>
+	
 </svelte:head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -88,13 +89,6 @@
 		padding: 2%;
 		margin: 1rem;
 		align-self: center;
-	}
-
-
-	h1,h2 {
-		color: #385983;
-		align-self: center;
-		width: 100%;
 	}
 
 	img {

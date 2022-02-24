@@ -1,13 +1,22 @@
 <script>
+import { goto } from "$app/navigation";
+import { loggedInUser } from "src/stores/stores.js";
+
 	export const prerender = true;
 	import axios from "axios";
 
 	const api = axios.create({
 		baseURL : "http://localhost:3000"
 	});
+    const gotoLogin = function() {
+        // Remove global user
+        $loggedInUser = "";
 
-
-
+        goto("/");
+    }
+    const gotoSettings = function() {
+        goto("/setting")
+    }
 </script>
 
 
@@ -19,7 +28,7 @@
 
 <div class="top_menu">
     
-	<div class="setting">
+	<div class="setting" on:click={gotoSettings}>
         <a href="/setting">
             <img class ="setting_img"src="./settings.png" alt="setting_png" width="7%">
         </a>
@@ -27,7 +36,7 @@
     </div>
    
 
-    <div class="logout">
+    <div class="logout" on:click={gotoLogin}>
         <img class ="logout_img"src="./logout.png" alt="logout_png" width="7%">
         logout
     </div>
@@ -44,7 +53,7 @@
 
 <div class="study_set_list">
     <!-- we are gonna call the list by using for loop. For now just make dummy one -->
-    <a href="/studyset">
+    <a href="/studySet">
         <div class="study_set_box">science</div>
     </a>
 </div>

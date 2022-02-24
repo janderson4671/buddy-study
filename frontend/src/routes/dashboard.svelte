@@ -1,13 +1,11 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
+    import { loggedInUser } from "../stores/stores.js";
 
 	const api = axios.create({
 		baseURL : "http://localhost:3000"
 	});
-
-
-
 </script>
 
 
@@ -35,6 +33,7 @@
 
 <div class="study_set">
     My Study Sets
+    <h1>Current user is {$loggedInUser}</h1>
         <div class="add_study_set">
             <a href="/createStudySet">
                 <img class ="add_img"src="./plus.png" alt="add_png" width="1.8%"> Add a Study Set

@@ -1,6 +1,8 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
+	import { loggedInUser } from "../stores/stores.js"
+	import { goto } from "$app/navigation"
 
 	let username_input = null;
 	let password_input = null;
@@ -23,7 +25,12 @@
 			var response = await api.post("/api/user/login", loginRequest);
 			if (response.data.success) {
 				alert("Welcome " + username_input +"!");
-				window.location.href = "/dashboard"
+
+				// Set the global username
+				$loggedInUser = username_input;
+
+				// Redirect user to dashboard page
+				goto("/dashboard", false);
 			}
 			// alert("User has been logged in!");
 

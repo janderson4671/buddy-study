@@ -22,7 +22,8 @@
 
 			if (response.data.success) {
 				alert("registered " + response.data.username);
-				window.location.href = "/";
+				// Redirect user to login page
+				goto("/");
 			}
 			else {
 				alert("register failed! " + response.data.message);

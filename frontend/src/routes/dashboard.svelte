@@ -6,6 +6,8 @@
 		baseURL : "http://localhost:3000"
 	});
 
+
+
 </script>
 
 
@@ -34,10 +36,17 @@
 <div class="study_set">
     My Study Sets
         <div class="add_study_set">
-            <a href="/studySet">
+            <a href="/createStudySet">
                 <img class ="add_img"src="./plus.png" alt="add_png" width="1.8%"> Add a Study Set
             </a>
         </div>
+</div>
+
+<div class="study_set_list">
+    <!-- we are gonna call the list by using for loop. For now just make dummy one -->
+    <a href="/studyset">
+        <div class="study_set_box">science</div>
+    </a>
 </div>
 
 <style>
@@ -86,9 +95,18 @@
     }
 
     .study_set a {
-    color: black;
-    text-decoration: none;
-}
+        color: black;
+        text-decoration: none;
+    }
+
+    .study_set_box{
+        position: absolute;
+        width: 321px;
+        height: 104px;
+        background-color: #799BF4;
+        border-radius: 9px;
+        text-align: center;
+    }
 
 </style>
 

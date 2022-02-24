@@ -2,28 +2,48 @@
 	export const prerender = true;
 	import axios from "axios";
 
+	let studyset_title = null;
+
 	const api = axios.create({
 		baseURL : "http://localhost:3000"
 	});
 
-	async function createFlashCard() {
-	}
+
+    async function saveStudySet() {
+
+    }
+
+    async function cancelStudySet() {
+
+}
 
 </script>
 
 
+<svelte:head>
+	<title>Buddy Study</title>
+</svelte:head>
+
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<p>Science</p>
+<div class="title">
 
-<div class="flashcards">
-    <div class="add_flashcard">
-        <a href="/createFlashcard">
-            <img class ="add_img"src="./plus.png" alt="add_png" width="1.8%"> Add a Flash Card
-        </a>
-    </div>
 </div>
 
+<div class="user_input">
+	<p class ="text">New Study Set</p>
+    Study Set Title
+	<input bind:value={studyset_title}>
+</div>
+
+<div class="save_button">
+	<button on:click={saveStudySet}>save</button>
+</div>
+
+<div class="cancel_button">
+	<button on:click={cancelStudySet}>cancel</button>
+</div>
 
 <style>
 

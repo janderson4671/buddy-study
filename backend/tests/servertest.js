@@ -19,9 +19,42 @@ let assertNotNull = function(object) {
 }
 
 let clearUsers = async function() {
-    let response = await await api.get("/api/database/clearUsers");
-    if (!response.data.success) {
-        throw "Clear User Database Failed!"
+    try {
+        let response = await api.get("/api/database/clearUsers");
+        if (!response.data.success) {
+            throw "Clear User Database Failed!"
+        }
+    } catch (error) {
+        reportFailure(error);
+        process.exit(1);
+    }
+    
+}
+
+let clearStudySets = async function() {
+    try {
+        let response = await api.get("/api/database/clearStudySets");
+        if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Clear StudySet Database Failed!"
+        }
+    } catch (error) {
+        reportFailure(error);
+        process.exit(1);
+    }
+    
+}
+
+let clearFlashcards = async function() {
+    try {
+        let response = await api.get("/api/database/clearFlashcards");
+        if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Clear Flashcard Database Failed!"
+        }
+    } catch (error) {
+        reportFailure(error);
+        process.exit(1);
     }
 }
 /******************************************************************************/
@@ -54,9 +87,11 @@ let registerTests = async function registerTests() {
         assertNotNull(response);
     
         if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Register service failed when it should not have";
         }
         if (response.data.username !== validRegisterRequest.username) {
+            console.log("Error Message: " + response.data.message); 
             throw "Response username does not match request username";
         }
 
@@ -74,6 +109,7 @@ let registerTests = async function registerTests() {
         assertNotNull(response);
 
         if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Duplicate Username was allowed to register to system"
         }
 
@@ -90,6 +126,7 @@ let registerTests = async function registerTests() {
         assertNotNull(response);
     
         if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Invalid register was successful when it should not have";
         }
 
@@ -146,9 +183,11 @@ let loginTests = async function loginTests() {
         assertNotNull(response);
 
         if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Login was unsuccessful when given valid login";
         }
         if (response.data.username !== validLoginRequest.username) {
+            console.log("Error Message: " + response.data.message); 
             throw "Response username does not match request username";
         }
 
@@ -164,6 +203,7 @@ let loginTests = async function loginTests() {
         assertNotNull(response);
 
         if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Login was successful for a user that does not exist";
         }
 
@@ -179,6 +219,7 @@ let loginTests = async function loginTests() {
         assertNotNull(response);
 
         if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Login was successful with incorrect password";
         }
 
@@ -194,6 +235,7 @@ let loginTests = async function loginTests() {
         assertNotNull(response);
 
         if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Login was successful with null Username";
         }
 
@@ -201,6 +243,7 @@ let loginTests = async function loginTests() {
         assertNotNull(response);
 
         if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Login was successful with null Password";
         }
 
@@ -246,11 +289,13 @@ let userDeleteTests = async function userDeleteTests() {
     try {
         response = await api.post("/api/user/delete", invalidUsernameRequest);
         if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Valid Delete with null username";
         }
 
         response = await api.post("/api/user/delete", invalidPasswordRequest);
         if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Valid Delete with null password";
         }
 
@@ -263,6 +308,7 @@ let userDeleteTests = async function userDeleteTests() {
     try {
         response = await api.post("/api/user/delete", wrongPasswordRequest);
         if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Valid delete given an incorrect password";
         }
 
@@ -275,18 +321,331 @@ let userDeleteTests = async function userDeleteTests() {
     try {
         response = await api.post("/api/user/delete", validDeleteRequest);
         if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Valid Delete Request was unsuccessful";
         }
 
         // Should fail since the user is already deleted
         response = await api.post("/api/user/delete", validDeleteRequest);
         if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
             throw "Successful delete when user was already deleted";
         }
 
         reportSuccess("Passed Valid Delete Test and Duplicate Delete Test");
     } catch (error) {
         reportFailure(error);
+    }
+}
+
+/************************** STUDYSET TESTS ***************************/
+let studysetTests = async function studysetTests() {
+
+    console.log("\n -------------------- BEGIN STUDYSET TESTS -------------------- \n");
+
+    let registerRequest = {
+        username: "person123",
+        password: "password",
+        email: "randomemail@email.com"
+    }
+    let validStudySetCreateRequest = {
+        username : "person123",
+        subject : "biology"
+    }
+    let anotherValidStudySet = {
+        username : "person123",
+        subject : "tennis"
+    }
+    let invalidStudySetCreateRequest = {
+        username : "123person",
+        subject : "chemistry"
+    }
+    var response = null;
+    var studySetIDOne = null;
+    var studySetIDTwo = null;
+
+    // clear the study set database and user database
+    clearStudySets()
+    clearUsers()
+
+    // register user in system
+    response = await api.post("/api/user/register", registerRequest);
+
+    // Create tests
+    try {
+        response = await api.post("/api/studyset/create", validStudySetCreateRequest);
+        studySetIDOne = response.data.studysetID;
+        if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Valid study set create was unsuccessful"
+        }
+
+        response = await api.post("/api/studyset/create", anotherValidStudySet);
+        studySetIDTwo = response.data.studysetID;
+        if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "valid study set create was unsuccessful"
+        }
+
+        // Invalid study set create request
+        response = await api.post("/api/studyset/create", invalidStudySetCreateRequest);
+        if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "study set made for user that does not exist"
+        }
+
+        reportSuccess("Passed Basic Create tests");
+    } catch (error) {
+        reportFailure(error);
+    }
+
+    // Retreival tests
+    try {
+        response = await api.get("/api/studyset/allsets/person123");
+        if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "unable to get study sets for existing user"
+        }
+        if (response.data.studysets.length != 2) {
+            throw "user does not have exactly 2 study sets"
+        }
+
+        // Invalid retreival
+        response = await api.get("/api/studyset/allsets/123person");
+        if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "successful study set retreival for non-existing user"
+        }
+
+        reportSuccess("Passed StudySet Retreival Tests")
+    } catch (error) {
+        reportFailure(error);
+    }
+
+    let validDeleteRequest = {
+        username : "person123",
+        studysetID : studySetIDOne
+    }
+    let invalidDeleteRequest = {
+        username : "123person",
+        studysetID : studySetIDTwo
+    }
+
+    // Delete Tests
+    try {
+        response = await api.post("/api/studyset/delete", validDeleteRequest);
+        if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Valid delete was unsuccessful for study set"
+        }
+
+        response = await api.post("/api/studyset/delete", invalidDeleteRequest)
+        if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Invalid delete was successful for non existing user"
+        }
+
+        reportSuccess("Passed Delete Tests for Study Sets")
+    } catch (error) {
+        reportFailure(error);
+    }
+}
+
+/************************** FLASHCARD TESTS ***************************/
+let flashcardTests = async function flashcardTests() {
+    
+    console.log("\n -------------------- BEGIN FLASHCARD TESTS -------------------- \n");
+
+    // Needed for setup
+    clearUsers()
+    clearStudySets()
+
+    let registerRequest = {
+        username: "person123",
+        password: "password",
+        email: "randomemail@email.com"
+    }
+    let validStudySetCreateRequest = {
+        username : "person123",
+        subject : "biology"
+    }
+    var studysetID = null;
+    var response = null;
+
+    response = await api.post("/api/user/register", registerRequest);
+    response = await api.post("/api/studyset/create", validStudySetCreateRequest);
+    studysetID = response.data.studysetID
+
+
+    let validFlashCardOne = {
+        studysetID : studysetID,
+        questionNum : 1,
+        questionText : "2 + 2 = ?",
+        answerText : "4"
+    }
+    let validFlashCardTwo = {
+        studysetID : studysetID,
+        questionNum : 2,
+        questionText : "What is the capital of Arizona?",
+        answerText : "Phoenix"
+    }
+    let updateFlashCardTwo = {
+        studysetID : "FakeID", /* Is this intentional? studysetID would allow a valid update */ 
+        // studysetID : studysetID,
+        questionNum : 2,
+        questionText : "What is the capital of Utah?",
+        answerText : "Salt Lake City"
+    }
+    let invalidFlashCardRequest = {
+        studysetID : null,
+        questionNum : 1,
+        questionText : "2 + 2 = ?",
+        answerText : "4"
+    }
+    let deleteFlashCardOne = {
+        studysetID : studysetID,
+        questionNum : 1
+    }
+    let deleteFlashCardTwo = {
+        studysetID : studysetID,
+        questionNum : 2
+    }
+    let invalidDelete = {
+        studysetID : "notASetID",
+        questionNum : 25
+    }
+    let invalidUpdate = {
+        studysetID : studysetID,
+        questionNum : 56,
+        questionText : "Do sharks swim?",
+        answerText : "Yes"
+    }
+
+    // Clear the database
+    clearFlashcards();
+    
+    // // Create flashcard test
+    try {
+       // Valid Request
+       response = await api.post("/api/flashcard/create", validFlashCardOne);
+       if (!response.data.success) {
+           console.log("Error Message: " + response.data.message); 
+           throw "Flashcard 1 not created and should have been"
+       }
+       // Subsequent valid request
+       response = await api.post("/api/flashcard/create", validFlashCardTwo);
+       if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Flashcard 2 not created and should have been"
+       }
+       // Invalid request
+       response = await api.post("/api/flashcard/create", invalidFlashCardRequest);
+        if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Invalid Flashcard create request was successful"
+        }
+       reportSuccess("Passed Basic FlashCard Create Tests");
+    } catch (error) {
+        reportFailure(error);
+    }
+    // Delete Flashcard test
+    try {
+        // Valid Delete
+        response = await api.post("/api/flashcard/delete", deleteFlashCardOne);
+        if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "FlashCard 1 was not deleted and should have been"
+        }
+
+        // Invalid Delete
+        response = await api.post("/api/flashcard/delete", deleteFlashCardTwo);
+        if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Flashcard 2 was not re-assigned as #1"
+        }
+
+        // Invalid Delete
+        response = await api.post("/api/flashcard/delete", invalidDelete);
+        if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Invalid Delete request was successful"
+        }
+
+        reportSuccess("Passed FlashCard Delete Tests")
+    } catch (error) {
+        reportFailure(error);
+    }
+
+    // Update Flashcard Test
+    try {
+        // Valid Update
+        response = await api.post("/api/flashcard/update", updateFlashCardTwo);
+        if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Valid flashcard Update was unsuccessful"
+        }
+
+        // Invalid Update
+        response = await api.post("/api/flashcard/update", invalidUpdate);
+        if (response.data.success) {
+            throw "Invalid flashcard Update was successful"
+        }
+
+        reportSuccess("Passed flashcard Update Tests")
+    } catch (error) {
+        reportFailure(error);
+    }
+    
+    
+    /*  Doesn't this cause a problem? Q2 will have been re-numbered now as Q1, so this valid request is no
+        longer valid because it specifies (questionNum=1). This makes me think we change the api call for 
+        'create flashcard' to not include question num. It should just append it to the back of the list. 
+
+        In addition, I currently set the Update endpoint for flashcards to allow changes only to text, 
+        both question and answer, but not question number. Did you want them to be able to rearrange the list? 
+        This would require a small algorithm to remove the item from its current place, insert somewhere else, 
+        and shift all affected items accordingly. Up to you @Jason.  
+
+        | | | | | | | | |
+        V V V V V V V V V                                           
+    */ 
+    // Reinsert question 1
+    response = await api.post("/api/flashcard/create", validFlashCardOne);
+    /* 
+        ^ ^ ^ ^ ^ ^ ^ ^ ^
+        | | | | | | | | | 
+    */ 
+
+    // Test for retreiving all flashcards for a study set
+    try {
+        // Should get all flashcards with proper order by question number
+        response = await api.get("/api/flashcard/allcards/" + validFlashCardOne.studysetID);
+        if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Unsuccessful retrieval of flashcards in studyset" + validFlashCardOne.studysetID
+        }
+        
+        // Check the size and order
+        if (response.data.flashCards.length != 2) {
+            throw "Did not get exactly 2 flashcards from the database"
+        }
+        if (response.data.flashCards[0].questionNum == 2) {
+            throw "Incorrect ordering of flashcards by question number"
+        }
+        if (response.data.flashCards[0].questionText != validFlashCardTwo.questionText) {
+            throw "Flashcards were not re-numbered when one was deleted" 
+        }
+
+        // Invalid retrieval of flashcards for non-existing study set
+        response = await api.get("/api/flashcard/allcards/dontexist");
+        if (response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Successful response for getting flashcards from non-existing study set"
+        }
+
+        reportSuccess("Passed flashcard retrieval tests")
+    } catch (error) {
+        reportFailure(error); 
     }
 }
 
@@ -297,7 +656,9 @@ let tests = async function() {
     // Comment out any tests that you do not need running
     await registerTests();
     await loginTests();
-    // await userDeleteTests();
+    await userDeleteTests();
+    await studysetTests();
+    await flashcardTests();
 }
 
 // Run test suite

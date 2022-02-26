@@ -86,10 +86,9 @@ Managing Study Sets:
 --------------------------------------------------------------------------------------------------------------------
 Managing FlashCards:
 
-"api/flashcard/create" -> create a new flashcard for a study set (POST)
+"api/flashcard/create" -> create a new flashcard for a study set (POST) (Creates questionID)
     request: {
         studysetID : string,    (NOT NULL)
-        questionNum : int,      (NOT NULL)
         questionText : string,  (NOT NULL)
         answerText : string     (NOT NULL)
     }
@@ -112,7 +111,7 @@ Managing FlashCards:
 "api/flashcard/update" -> update an existing flashcard (POST)
     request: {
         studysetID : string,    (NOT NULL)
-        questionNum : int,      (NOT NULL)
+        questionID : string,      (NOT NULL)
         questionText : string,  (NOT NULL)
         answerText : string     (NOT NULL)
     }

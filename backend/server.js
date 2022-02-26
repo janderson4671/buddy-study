@@ -38,8 +38,8 @@ const userSchema = new mongoose.Schema({
 
 // Schema for flashcards
 const flashCardSchema = new mongoose.Schema({
+    flashcardID: String, 
     studysetID: String, 
-    questionNum: Number, 
     question: String,
     answer: String,
 }); 
@@ -215,12 +215,11 @@ app.post("/api/user/delete", async (req, res) => {
 // Create a new flashcard for a study set 
 app.post("/api/flashcard/create", async (req, res) => {
     try {
-        if ((req.body.studysetID == null) || (req.body.questionNum == null) 
-                || (req.body.questionText == null) || (req.body.answerText == null)
-                || (req.body.studysetID == "") || (req.body.questionText == "") || (req.body.answerText == "")) {
+        if ((req.body.studysetID == null) || (req.body.questionText == null) || (req.body.answerText == null)
+                || (req.body.studySet == "") || (req.body.questionText == "") || (req.body.answerText == "")) {
             res.send({
                 success: false, 
-                message: "Must include study set ID, question number, question text, and answer text.."
+                message: "Must include study set ID, question text, and answer text.."
             }); 
             return; 
         }
@@ -235,8 +234,8 @@ app.post("/api/flashcard/create", async (req, res) => {
             return;
         } 
         const flashCard = new FlashCard({
+            flashcardID: uuid.v4(), 
             studysetID: req.body.studysetID, 
-            questionNum: req.body.questionNum, 
             question: req.body.questionText,
             answer: req.body.answerText,
         }); 
@@ -253,16 +252,15 @@ app.post("/api/flashcard/create", async (req, res) => {
 // Delete a flashcard
 app.post("/api/flashcard/delete", async (req, res) => {
     try {
-        if ((req.body.studysetID == null) || (req.body.questionNum == null) || (req.body.studysetID == "")) {
+        if ((req.body.flashcardID == null) || (req.body.flashcardID == "")) {
             res.send({
                 success: false, 
-                message: "Must include study set ID and question number.."
+                message: "Must include flashcard ID.."
             }); 
             return; 
         }
         const flashCard = await FlashCard.findOne({
-            studysetID: req.body.studysetID, 
-            questionNum: req.body.questionNum, 
+            flashcardID: req.body.flashcardID, 
         });     
         if (!flashCard) {
             res.send({
@@ -272,17 +270,6 @@ app.post("/api/flashcard/delete", async (req, res) => {
             return; 
         }
         await flashCard.delete();
-        
-        const flashCards = await FlashCard.find({
-            studysetID: req.body.studysetID, 
-        }); 
-        count = 1
-        for await (const card of flashCards) {
-            card.questionNum = count; 
-            count++; 
-            await card.save(); 
-        }  
-
         res.send({
             success: true
         }); 
@@ -295,18 +282,18 @@ app.post("/api/flashcard/delete", async (req, res) => {
 // Change a flashcard's data
 app.post("/api/flashcard/update", async (req, res) => {
     try {
-        if ((req.body.studysetID == null) || (req.body.questionNum == null) 
+        if ((req.body.flashcardID == null) || (req.body.studysetID == null) 
                 || (req.body.questionText == null) || (req.body.answerText == null)
-                || (req.body.studysetID == "") || (req.body.questionText == "") || (req.body.answerText == "")) {
+                || (req.body.flashcardID == "") || (req.body.studysetID == "") 
+                || (req.body.questionText == "") || (req.body.answerText == "")) {
             res.send({
                 success: false, 
-                message: "Must include study set ID, question number, question text, and answer text.."
+                message: "Must include flashcard ID, study set ID, question text, and answer text.."
             }); 
             return; 
         }
         const flashCard = await FlashCard.findOne({
-            studysetID: req.body.studysetID, 
-            questionNum: req.body.questionNum, 
+            flashcardID: req.body.flashcardID, 
         });     
         if (!flashCard) {
             res.send({
@@ -315,6 +302,7 @@ app.post("/api/flashcard/update", async (req, res) => {
             })
             return; 
         }
+        flashCard.studysetID = req.body.studysetID; 
         flashCard.questionText = req.body.questionText; 
         flashCard.answerText = req.body.answerText;
         await flashCard.save(); 
@@ -350,10 +338,6 @@ app.get("/api/flashcard/allcards/:studysetID", async (req, res) => {
             }); 
             return; 
         }
-        // sort flashcards by question number
-        flashCards.sort((a, b) => {
-            return a.questionNum - b.questionNum; 
-        }); 
         res.send({
             success: true, 
             flashCards: flashCards, 
@@ -413,7 +397,8 @@ app.post("/api/studyset/create", async (req, res) => {
 // Delete a study set and all associated flashcards
 app.post("/api/studyset/delete", async (req, res) => {
     try {
-        if ((req.body.username == null) || (req.body.studysetID == null)) {
+        if ((req.body.username == null) || (req.body.studysetID == null)
+                || (req.body.username == "") || (req.body.studysetID == "")) {
             res.send({
                 success: false, 
                 message: "Must include username and studysetID..", 
@@ -449,6 +434,16 @@ app.post("/api/studyset/delete", async (req, res) => {
 app.get("/api/studyset/allsets/:username", async (req, res) => {
     try {
         // TODO: check if we need to be testing for a null username here. ?? 
+        const user = await User.findOne({
+            username: req.params.username, 
+        }); 
+        if (!user) {
+            res.send({
+                success: false, 
+                message: "User does not exist..", 
+            }); 
+            return; 
+        }
         const studySets = await StudySet.find({
             username: req.params.username, 
         }); 
@@ -468,7 +463,5 @@ app.get("/api/studyset/allsets/:username", async (req, res) => {
         res.sendStatus(500); 
     }
 }); 
-
-
 
 app.listen(3000, () => console.log("Server listening on port 3000!")); 

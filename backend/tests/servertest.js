@@ -399,7 +399,7 @@ let studysetTests = async function studysetTests() {
         reportFailure(error);
     }
 
-    // Retreival tests
+    // Retrieval tests
     try {
         response = await api.get("/api/studyset/allsets/person123");
         if (!response.data.success) {
@@ -417,7 +417,7 @@ let studysetTests = async function studysetTests() {
             throw "successful study set retreival for non-existing user"
         }
 
-        reportSuccess("Passed StudySet Retreival Tests")
+        reportSuccess("Passed StudySet Retrieval Tests")
     } catch (error) {
         reportFailure(error);
     }

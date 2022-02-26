@@ -81,8 +81,8 @@
 		font-size: 34px;
 		line-height: 41px;
 		text-align: center;
-		background: 79c8f4;
-		color: #000000;
+		background: #79c8f4;
+		color: #79c8f4;
 
 
 		

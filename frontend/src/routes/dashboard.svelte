@@ -1,22 +1,14 @@
 <script>
 import { goto } from "$app/navigation";
-import { loggedInUser } from "src/stores/stores.js";
+
 
 	export const prerender = true;
 	import axios from "axios";
+    import { loggedInUser } from "../stores/stores.js";
 
 	const api = axios.create({
 		baseURL : "http://localhost:3000"
 	});
-    const gotoLogin = function() {
-        // Remove global user
-        $loggedInUser = "";
-
-        goto("/");
-    }
-    const gotoSettings = function() {
-        goto("/setting")
-    }
 </script>
 
 
@@ -32,7 +24,7 @@ import { loggedInUser } from "src/stores/stores.js";
         <a href="/setting">
             <img class ="setting_img"src="./settings.png" alt="setting_png" width="7%">
         </a>
-        setting
+        settings
     </div>
    
 
@@ -44,6 +36,7 @@ import { loggedInUser } from "src/stores/stores.js";
 
 <div class="study_set">
     My Study Sets
+    <h1>Current user is {$loggedInUser}</h1>
         <div class="add_study_set">
             <a href="/createStudySet">
                 <img class ="add_img"src="./plus.png" alt="add_png" width="1.8%"> Add a Study Set
@@ -54,7 +47,11 @@ import { loggedInUser } from "src/stores/stores.js";
 <div class="study_set_list">
     <!-- we are gonna call the list by using for loop. For now just make dummy one -->
     <a href="/studySet">
-        <div class="study_set_box">science</div>
+        <div class="study_set_box">
+            <div class="study_set_text">
+                Sciences
+            </div>
+        </div>
     </a>
 </div>
 
@@ -95,7 +92,7 @@ import { loggedInUser } from "src/stores/stores.js";
         margin-top: 5%;
         font-family: 'Archivo Black', sans-serif;
 		text-align: center;
-		font-size: 3vw;
+		font-size: 1vw;
     }
 
     .add_study_set {
@@ -109,12 +106,27 @@ import { loggedInUser } from "src/stores/stores.js";
     }
 
     .study_set_box{
-        position: absolute;
+        
         width: 321px;
         height: 104px;
         background-color: #799BF4;
         border-radius: 9px;
+        
+        margin: auto;
+    }
+
+    .study_set_text {
+        color: white;
+        font-family: Fira Sans;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 24px;
+        line-height: 29px;
         text-align: center;
+        width: 48px;
+        height: 29px;
+        padding-left: 60px;
+        padding-top: 35px;
     }
 
 </style>

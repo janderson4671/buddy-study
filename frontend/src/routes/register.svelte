@@ -1,6 +1,7 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
+	import { goto } from "$app/navigation"
 
 	let username_register = "";
 	let password_register = "";
@@ -22,8 +23,9 @@
 
 			if (response.data.success) {
 				alert("registered " + response.data.username);
+
 				// Redirect user to login page
-				goto("/");
+				goto("/", false);
 			}
 			else {
 				alert("register failed! " + response.data.message);

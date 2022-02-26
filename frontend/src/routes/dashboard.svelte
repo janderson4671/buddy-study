@@ -49,7 +49,7 @@ import { goto } from "$app/navigation";
     <a href="/studySet">
         <div class="study_set_box">
             <div class="study_set_text">
-                Sciences
+                Geography
             </div>
         </div>
     </a>

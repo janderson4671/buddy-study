@@ -476,70 +476,58 @@ let flashcardTests = async function flashcardTests() {
     response = await api.post("/api/studyset/create", validStudySetCreateRequest);
     studysetID = response.data.studysetID
 
-
     let validFlashCardOne = {
+        flashcardID: null, 
         studysetID : studysetID,
-        questionNum : 1,
         questionText : "2 + 2 = ?",
         answerText : "4"
     }
     let validFlashCardTwo = {
+        flashcardID: null, 
         studysetID : studysetID,
-        questionNum : 2,
         questionText : "What is the capital of Arizona?",
         answerText : "Phoenix"
     }
-    let updateFlashCardTwo = {
-        studysetID : "FakeID", /* Is this intentional? studysetID would allow a valid update */ 
-        // studysetID : studysetID,
-        questionNum : 2,
-        questionText : "What is the capital of Utah?",
-        answerText : "Salt Lake City"
-    }
-    let invalidFlashCardRequest = {
-        studysetID : null,
-        questionNum : 1,
+
+    let validFlashCardOneRequest = {
+        studysetID : studysetID,
         questionText : "2 + 2 = ?",
         answerText : "4"
     }
-    let deleteFlashCardOne = {
+    let validFlashCardTwoRequest = {
         studysetID : studysetID,
-        questionNum : 1
-    }
-    let deleteFlashCardTwo = {
-        studysetID : studysetID,
-        questionNum : 2
-    }
-    let invalidDelete = {
-        studysetID : "notASetID",
-        questionNum : 25
-    }
-    let invalidUpdate = {
-        studysetID : studysetID,
-        questionNum : 56,
-        questionText : "Do sharks swim?",
-        answerText : "Yes"
+        questionText : "What is the capital of Arizona?",
+        answerText : "Phoenix"
     }
 
+    let invalidFlashCardRequest = {
+        studysetID : null,
+        questionText : "2 + 2 = ?",
+        answerText : "4"
+    }
     // Clear the database
     clearFlashcards();
     
     // // Create flashcard test
     try {
-       // Valid Request
-       response = await api.post("/api/flashcard/create", validFlashCardOne);
-       if (!response.data.success) {
-           console.log("Error Message: " + response.data.message); 
-           throw "Flashcard 1 not created and should have been"
-       }
-       // Subsequent valid request
-       response = await api.post("/api/flashcard/create", validFlashCardTwo);
-       if (!response.data.success) {
+        // Valid Request
+        response = await api.post("/api/flashcard/create", validFlashCardOne);
+        if (!response.data.success) {
+            console.log("Error Message: " + response.data.message); 
+            throw "Flashcard 1 not created and should have been"
+        } else {
+            validFlashCardOne.flashcardID = response.data.flashcardID; 
+        }
+        // Subsequent valid request
+        response = await api.post("/api/flashcard/create", validFlashCardTwo);
+        if (!response.data.success) {
             console.log("Error Message: " + response.data.message); 
             throw "Flashcard 2 not created and should have been"
-       }
-       // Invalid request
-       response = await api.post("/api/flashcard/create", invalidFlashCardRequest);
+        } else {
+            validFlashCardTwo.flashcardID = response.data.flashcardID; 
+        }
+        // Invalid request
+        response = await api.post("/api/flashcard/create", invalidFlashCardRequest);
         if (response.data.success) {
             console.log("Error Message: " + response.data.message); 
             throw "Invalid Flashcard create request was successful"
@@ -548,6 +536,28 @@ let flashcardTests = async function flashcardTests() {
     } catch (error) {
         reportFailure(error);
     }
+    let updateFlashCardTwo = {
+        flashcardID: validFlashCardTwo.flashcardID, 
+        studysetID : studysetID,
+        questionText : "What is the capital of Utah?",
+        answerText : "Salt Lake City"
+    }
+    let deleteFlashCardOne = {
+        flashcardID: validFlashCardOne.flashcardID, 
+    }
+    let deleteFlashCardTwo = {
+        flashcardID: validFlashCardTwo.flashcardID, 
+    }
+    let invalidDelete = {
+        flashcardID: "notarealflashcard", 
+    }
+    let invalidUpdate = {
+        flashcardID: "notarealflashcard", 
+        studysetID : studysetID,
+        questionText : "Do sharks swim?",
+        answerText : "Yes"
+    }
+
     // Delete Flashcard test
     try {
         // Valid Delete
@@ -555,13 +565,6 @@ let flashcardTests = async function flashcardTests() {
         if (!response.data.success) {
             console.log("Error Message: " + response.data.message); 
             throw "FlashCard 1 was not deleted and should have been"
-        }
-
-        // Invalid Delete
-        response = await api.post("/api/flashcard/delete", deleteFlashCardTwo);
-        if (response.data.success) {
-            console.log("Error Message: " + response.data.message); 
-            throw "Flashcard 2 was not re-assigned as #1"
         }
 
         // Invalid Delete
@@ -596,25 +599,7 @@ let flashcardTests = async function flashcardTests() {
         reportFailure(error);
     }
     
-    
-    /*  Doesn't this cause a problem? Q2 will have been re-numbered now as Q1, so this valid request is no
-        longer valid because it specifies (questionNum=1). This makes me think we change the api call for 
-        'create flashcard' to not include question num. It should just append it to the back of the list. 
-
-        In addition, I currently set the Update endpoint for flashcards to allow changes only to text, 
-        both question and answer, but not question number. Did you want them to be able to rearrange the list? 
-        This would require a small algorithm to remove the item from its current place, insert somewhere else, 
-        and shift all affected items accordingly. Up to you @Jason.  
-
-        | | | | | | | | |
-        V V V V V V V V V                                           
-    */ 
-    // Reinsert question 1
     response = await api.post("/api/flashcard/create", validFlashCardOne);
-    /* 
-        ^ ^ ^ ^ ^ ^ ^ ^ ^
-        | | | | | | | | | 
-    */ 
 
     // Test for retreiving all flashcards for a study set
     try {
@@ -622,18 +607,12 @@ let flashcardTests = async function flashcardTests() {
         response = await api.get("/api/flashcard/allcards/" + validFlashCardOne.studysetID);
         if (!response.data.success) {
             console.log("Error Message: " + response.data.message); 
-            throw "Unsuccessful retrieval of flashcards in studyset" + validFlashCardOne.studysetID
+            throw "Unsuccessful retrieval of flashcards in studyset " + validFlashCardOne.studysetID
         }
         
         // Check the size and order
         if (response.data.flashCards.length != 2) {
             throw "Did not get exactly 2 flashcards from the database"
-        }
-        if (response.data.flashCards[0].questionNum == 2) {
-            throw "Incorrect ordering of flashcards by question number"
-        }
-        if (response.data.flashCards[0].questionText != validFlashCardTwo.questionText) {
-            throw "Flashcards were not re-numbered when one was deleted" 
         }
 
         // Invalid retrieval of flashcards for non-existing study set

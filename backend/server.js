@@ -242,6 +242,7 @@ app.post("/api/flashcard/create", async (req, res) => {
         await flashCard.save();
         res.send({
             success: true,
+            flashcardID: flashCard.flashcardID, 
         }); 
     } catch (error) {
         console.log(error); 

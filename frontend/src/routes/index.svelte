@@ -1,9 +1,9 @@
 <script>
 	export const prerender = true;
-
 	import axios from "axios";
+	import { loggedInUser } from "../stores/stores.js"
+	import { goto } from "$app/navigation"
 
-	// let logoImg = "../img/rading.png"
 	let username_input = null;
 	let password_input = null;
 
@@ -23,7 +23,14 @@
 			console.log(password_input);
 
 			var response = await api.post("/api/user/login", loginRequest);
-			alert(response.message);
+			if (response.data.success) {
+				alert("Welcome " + username_input +"!");
+				// Set the global username
+				$loggedInUser = username_input;
+
+				// Redirect user to dashboard page
+				goto("/dashboard", false);
+			}
 			// alert("User has been logged in!");
 
 		} catch (error) {
@@ -35,11 +42,14 @@
 </script>
 
 
-<!-- <svelte:head>
-	<title>Home</title>
+<svelte:head>
+	<title>Buddy Study</title>
 	
-</svelte:head> -->
+</svelte:head>
+
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <div class="title">
 	<div class='blank'>
 		Buddy<img class ="logoImg"src="./reading.png" alt="logo_png" width="6%">
@@ -127,6 +137,7 @@
 	.register_button {
 		display: flex;
 		justify-content: center;
+		font-family: 'Fira Sans Condensed', sans-serif;
 		font-size: 1.25vw;
 		margin: 3%;
 	}

@@ -1,11 +1,11 @@
 <script>
 	export const prerender = true;
-
 	import axios from "axios";
+	import { goto } from "$app/navigation"
 
-	let username = "";
-	let password = "";
-	let email = "";
+	let username_register = "";
+	let password_register = "";
+	let email_register = "";
 	let src = "../../static/register.png"
 
 	const api = axios.create({
@@ -15,12 +15,22 @@
 	async function registerUser() {
 		try {
 			let registerRequest = {
-				name: username,
-				password: password,
-				email: email
+				username: username_register,
+				password: password_register,
+				email: email_register
 			};
 			var response = await api.post("/api/user/register", registerRequest);
-			alert("User has been registered!");
+
+			if (response.data.success) {
+				alert("registered " + response.data.username);
+
+				// Redirect user to login page
+				goto("/", false);
+			}
+			else {
+				alert("register failed! " + response.data.message);
+			}
+			
 
 		} catch (error) {
 			console.log(error);
@@ -32,7 +42,7 @@
 
 
 <svelte:head>
-	<title>Home</title>
+	<title>Buddy Study</title>
 	
 </svelte:head>
 
@@ -50,22 +60,29 @@
 
 <div class="register_input">
 	<p class="text">username</p>
-	<input bind:value={username} >
+	<input bind:value={username_register} >
 	<p class="text">password</p>
-	<input bind:value={password}>
+	<input bind:value={password_register}>
 	<p class="text">email</p>
-	<input bind:value={email}>
+	<input bind:value={email_register}>
 </div>
 
-<a href="/">
-	<div class="register_button">
-		{#if username !== "" && email !== "" && password != ""}
+<!-- {#if response!= null && response.data.success} -->
+	<!-- <a href="/"> -->
+		<div class="register_button">
 			<button on:click={registerUser}>register</button>
-		{/if}
-	</div>
-</a>
+		</div>
+	<!-- </a> -->
+<!-- {/if} -->
 
 <div class="blank"></div>
+
+<!-- <a href="/">
+	<div class="register_button">
+		<button>Home</button>
+	</div>
+</a> -->
+<!-- <div class="blank"></div> -->
 
 <style>
 
@@ -75,13 +92,6 @@
 		padding: 2%;
 		margin: 1rem;
 		align-self: center;
-	}
-
-
-	h1,h2 {
-		color: #385983;
-		align-self: center;
-		width: 100%;
 	}
 
 	img {

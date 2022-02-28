@@ -98,10 +98,12 @@ Managing FlashCards:
     }
 
 "api/flashcard/delete" -> delete an existing flashcard (POST)
-    NOTE: Will cause all flashcards to be renumbered!!!
     request: {
+        /*
         studysetID : string,    (NOT NULL)
         questionNum : int       (NOT NULL)
+        */ 
+        flashcardID : string    (NOT NULL) 
     }
     response: {
         success : bool,         (NOT NULL)
@@ -110,8 +112,8 @@ Managing FlashCards:
 
 "api/flashcard/update" -> update an existing flashcard (POST)
     request: {
+        flashcardID : string,   (NOT NULL)
         studysetID : string,    (NOT NULL)
-        questionID : string,      (NOT NULL)
         questionText : string,  (NOT NULL)
         answerText : string     (NOT NULL)
     }
@@ -124,5 +126,5 @@ Managing FlashCards:
     response: {
         success : bool,
         message : string,
-        list<Flashcard> : list of flashcards (Orderded by question number)
+        list<Flashcard> : list of flashcards
     }

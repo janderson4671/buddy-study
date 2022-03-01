@@ -1,6 +1,7 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
+	import { goto } from "$app/navigation"
 
 	let username_register = "";
 	let password_register = "";

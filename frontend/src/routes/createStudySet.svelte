@@ -1,6 +1,8 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
+	import { loggedInUser } from "../stores/stores.js"
+	import { goto } from "$app/navigation"
 
 	let studyset_title = null;
 
@@ -8,14 +10,30 @@
 		baseURL : "http://localhost:3000"
 	});
 
-
     async function saveStudySet() {
+		let request = {
+			username: $loggedInUser,
+			subject: studyset_title
+		}
 
+		try {
+			let response = await api.post("/api/studyset/create", request);
+			if (response.data.success) {
+				alert("Successfully made " + studyset_title + " studyset!");
+				goto("/dashboard")
+			} else {
+				alert(response.data.message)
+			}
+		} catch (error) {
+			console.log(error);
+			alert("Something went wrong!");
+		}
     }
 
     async function cancelStudySet() {
-
-}
+		// Navigate back to dashboard
+		goto("/dashboard");
+	}
 
 </script>
 

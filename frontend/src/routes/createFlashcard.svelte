@@ -1,6 +1,8 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
+	import { selectedStudySet } from "../stores/stores.js"
+	import { goto } from "$app/navigation";
 
 	let question_input = null;
     let answer_input = null;
@@ -14,10 +16,9 @@
 		console.log("check");
 		try {
 			let flashcardRequest = {
-				studysetID: "1234",
-				questionNum: 1,
+				studysetID: $selectedStudySet,
 				questionText: question_input,
-				answerText: answer_input,
+				answerText: answer_input
 			};
 			var response = await api.post("/api/flashcard/create", flashcardRequest);
 
@@ -25,7 +26,7 @@
 
 			if (response.data.success) {
 				alert("just added the flash card");
-				window.location.href = "/studyset";
+				goto("/editStudySet");
 			}
 			else {
 				alert("failed adding a flash card" + response.data.message);
@@ -40,7 +41,7 @@
 
     async function cancelFlashcard() {
 
-}
+	}
 
 </script>
 
@@ -50,8 +51,7 @@
 </svelte:head>
 
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
 
 <div class="user_input">
 	<p class ="text">New Flash Card</p>

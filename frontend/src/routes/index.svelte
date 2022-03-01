@@ -1,6 +1,7 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
+	import { goto } from "$app/navigation"
 	import { loggedInUser } from "../stores/stores.js"
 
 	let username_input = null;

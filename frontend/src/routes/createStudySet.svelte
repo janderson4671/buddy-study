@@ -1,22 +1,34 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
-
+	import { loggedInUser } from "../stores/stores.js"
+	import { goto } from "$app/navigation"
 	let studyset_title = null;
-
 	const api = axios.create({
 		baseURL : "http://localhost:3000"
 	});
-
-
     async function saveStudySet() {
-
+		let request = {
+			username: $loggedInUser,
+			subject: studyset_title
+		}
+		try {
+			let response = await api.post("/api/studyset/create", request);
+			if (response.data.success) {
+				alert("Successfully made " + studyset_title + " studyset!");
+				goto("/dashboard")
+			} else {
+				alert(response.data.message)
+			}
+		} catch (error) {
+			console.log(error);
+			alert("Something went wrong!");
+		}
     }
-
     async function cancelStudySet() {
-
-}
-
+		// Navigate back to dashboard
+		goto("/dashboard");
+	}
 </script>
 
 
@@ -33,16 +45,16 @@
 
 <div class="user_input">
 	<p class ="set_title">Study Set Title</p>
-	<textarea  class="textbox" name="studyset_title" rows="2" cols="40"></textarea>
+	<input bind:value={studyset_title}>
 </div>
 
 <div class="buttons">
 	<div class="save_button">
-		<button on:click={saveFlashcard}>save</button>
+		<button on:click={saveStudySet}>save</button>
 	</div>
 
 	<div class="cancel_button">
-		<button on:click={cancelFlashcard}>cancel</button>
+		<button on:click={cancelStudySet}>cancel</button>
 	</div>
 </div>
 

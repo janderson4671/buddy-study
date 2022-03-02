@@ -215,7 +215,7 @@ app.post("/api/user/delete", async (req, res) => {
 // Create a new flashcard for a study set 
 app.post("/api/flashcard/create", async (req, res) => {
     try {
-        if ((req.body.studysetID == null) || (req.body.questionNum == null) 
+        if ((req.body.studysetID == null)
                 || (req.body.questionText == null) || (req.body.answerText == null)
                 || (req.body.studysetID == "") || (req.body.questionText == "") || (req.body.answerText == "")) {
             res.send({

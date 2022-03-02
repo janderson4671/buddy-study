@@ -31,7 +31,9 @@
 				// Redirect user to dashboard page
 				goto("/dashboard", false);
 			}
-			// alert("User has been logged in!");
+			else {
+				alert("Error: " + response.data.message);
+			}
 
 		} catch (error) {
 			console.log(error);

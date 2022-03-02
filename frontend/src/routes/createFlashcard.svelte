@@ -1,47 +1,38 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
-
+	import { selectedStudySet } from "../stores/stores.js"
+	import { goto } from "$app/navigation";
 	let question_input = null;
     let answer_input = null;
-
 	const api = axios.create({
 		baseURL : "http://localhost:3000"
 	});
-
-
     async function saveFlashcard() {
 		console.log("check");
 		try {
 			let flashcardRequest = {
-				studysetID: "1234",
-				questionNum: 1,
+				studysetID: $selectedStudySet,
 				questionText: question_input,
-				answerText: answer_input,
+				answerText: answer_input
 			};
 			var response = await api.post("/api/flashcard/create", flashcardRequest);
-
 			console.log(response.data.success);
-
 			if (response.data.success) {
 				alert("just added the flash card");
-				window.location.href = "/studyset";
+				goto("/editStudySet");
 			}
 			else {
 				alert("failed adding a flash card" + response.data.message);
 			}
 			
-
 		} catch (error) {
 			console.log(error);
 			alert("failed!");
 		}
     }
-
     async function cancelFlashcard() {
-
-}
-
+	}
 </script>
 
 
@@ -56,9 +47,15 @@
 
 <div class="user_input">
 	<p class ="qna">Question Side</p>
-	<textarea class="textbox" name="question_input" rows="9" cols="60"></textarea>
-    <p class ="qna">Answer Side</p>
-	<textarea  class="textbox" name="answer_input" rows="9" cols="60"></textarea>
+	<input bind:value={question_input}>
+	<!--
+	<textarea bind:value={question_input} class="textbox" name="question_input" rows="9" cols="60"></textarea>
+    -->
+	<p class ="qna">Answer Side</p>
+	<input bind:value={answer_input}>
+	<!--
+	<textarea  bind:value={answer_input} class="textbox" name="answer_input" rows="9" cols="60"></textarea>
+	-->
 </div>
 
 <div class="buttons">

@@ -20,7 +20,7 @@ let assertNotNull = function(object) {
 
 let clearUsers = async function() {
     try {
-        let response = await api.get("/api/database/clearUsers");
+        let response = await api.get("/api/user/clear");
         if (!response.data.success) {
             throw "Clear User Database Failed!"
         }
@@ -33,7 +33,7 @@ let clearUsers = async function() {
 
 let clearStudySets = async function() {
     try {
-        let response = await api.get("/api/database/clearStudySets");
+        let response = await api.get("/api/studyset/clear");
         if (!response.data.success) {
             console.log("Error Message: " + response.data.message); 
             throw "Clear StudySet Database Failed!"
@@ -47,7 +47,7 @@ let clearStudySets = async function() {
 
 let clearFlashcards = async function() {
     try {
-        let response = await api.get("/api/database/clearFlashcards");
+        let response = await api.get("/api/flashcard/clear");
         if (!response.data.success) {
             console.log("Error Message: " + response.data.message); 
             throw "Clear Flashcard Database Failed!"
@@ -82,7 +82,7 @@ let registerTests = async function registerTests() {
     
     // Test Valid Register API call
     try {
-        var response = await await api.post("/api/user/register", validRegisterRequest);
+        var response = await api.post("/api/user/register", validRegisterRequest);
     
         assertNotNull(response);
     
@@ -104,7 +104,7 @@ let registerTests = async function registerTests() {
 
     // Test Duplicate Username
     try {
-        response = await await api.post("/api/user/register", validRegisterRequest);
+        response = await api.post("/api/user/register", validRegisterRequest);
 
         assertNotNull(response);
 
@@ -122,7 +122,7 @@ let registerTests = async function registerTests() {
     
     // Test Invalid Register API Call
     try {
-        response = await await api.post("/api/user/register", invalidRegisterRequest);
+        response = await api.post("/api/user/register", invalidRegisterRequest);
         assertNotNull(response);
     
         if (response.data.success) {

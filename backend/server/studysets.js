@@ -1,5 +1,4 @@
 const express = require("express"); 
-const mongoose = require("mongoose"); 
 const uuid = require("uuid"); 
 const router = express.Router(); 
 
@@ -7,7 +6,6 @@ const models = require("./models.js");
 
 // Imported models
 const User = models.userModel;  
-const FlashCard = models.flashcardModel;  
 const StudySet = models.studysetModel;  
 
 router.get("/clear", async (req, res) => {

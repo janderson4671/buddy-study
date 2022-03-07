@@ -48,11 +48,7 @@ mongoose.connect('mongodb://localhost:27017/buddy-study', {
     useUnifiedTopology: true
 }); 
 
-/* ABLY Context */ 
-// Constants
-const MIN_PLAYERS_TO_START_GAME = 2;  
-const GAME_ROOM_CAPACITY = 2; 
-const Q_TIMER = 7; 
+/* --- BEGIN Ably Context --- */  
 
 // Channels
 const globalChannelChName = "main-game-thread"
@@ -62,7 +58,9 @@ let globalChannel;
 let activeLobbies = {};
 totalPlayersOnServer = 0; 
 
-// CONNECT TO ABLY REALTIME
+/* --- END Ably Context --- */ 
+
+// Connect to Ably Realtime
 realtime.connection.once("connected", () => {
     globalChannel = realtime.channels.get(globalChannelChName);
     globalChannel.presence.subscribe("enter", (player) => {
@@ -70,13 +68,14 @@ realtime.connection.once("connected", () => {
         createNewLobby(
             player.data.username, 
             player.data.lobbyId, 
+            player.clientId
         ); 
     }); 
 }); 
 
 // Add ABLY authtoken for given username, used for authUrl authentication in client
 app.get("/api/game/auth", async (req, res) => {
-    const tokenParams = {clientId: req.body.username}; 
+    const tokenParams = {clientId: uuid.v4()}; 
     realtime.auth.createTokenRequest(tokenParams, function (err, tokenRequest) {
         if (err) {
             res.status(500).send("Error requesting token: " + JSON.stringify(err)); 
@@ -89,6 +88,8 @@ app.get("/api/game/auth", async (req, res) => {
 }); 
 
 // Create new game lobby (returns lobbyId)
+// TODO: Maybe this should be post?? I'm not sure, since it's not REST...
+// Maybe it shouldn't 
 app.get("/api/game/newlobby", async (req, res) => {
     try {
         if ((req.body.username == null) || (req.body.username == "") ||
@@ -127,12 +128,13 @@ app.get("/api/game/newlobby", async (req, res) => {
     }
 }); 
 
-function createNewLobby(hostUsername, lobbyId) {
-    if (!isMainThread) {
+function createNewLobby(hostUsername, lobbyId, hostClientId) {
+    if (isMainThread) {
         const worker = new Worker("./lobby-server.js", {
             workerData: {
                 hostUsername: hostUsername, 
                 lobbyId: lobbyId, 
+                hostClientId: hostClientId
             }
         }); 
         console.log(`CREATING NEW THREAD WITH ID ${threadId}`); 

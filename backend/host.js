@@ -67,6 +67,6 @@ function subscribeToLobby() {
         if (this.questionTimer < 0) {
             this.questionTimer = 30; 
         }
-    }
+    }); 
 }
 

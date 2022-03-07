@@ -1,0 +1,89 @@
+Using Ably and Express with Node.js
+
+Player submits a request to start a game lobby (no one else is invited yet..)
+    request: {
+        username: string,     (NOT NULL)
+    }
+Player receives a response with the lobbyID, which is a session created on the backend. 
+Somehow also opens a connection with the server... 
+    response: {
+        lobbyID: string,      (NOT NULL) 
+        success : bool,       (NOT NULL)
+        message : string 
+    }
+
+Player sends username of another player to invite them to the session. 
+    request: {
+        username: string,     (NOT NULL) 
+    }
+If invite is extended successfully, returns success=True, if it fails for some reason
+(e.g. user doesn't exist), it will return false. 
+    response: {
+        success : bool,       (NOT NULL)
+        message : string 
+    }
+
+At any point, the host can choose the study set that they want to set as the 
+studyset for the lobby. This way, players can do multiple rounds, with multiple
+studysets, without having to leave the lobby. 
+
+
+
+When Player 2 joins the session, an alert / "notify" call is sent to all in the session
+telling them that [username] has arrived. 
+
+Players each have reactive element called "ready" which communicates with the session 
+on each toggl. When they AND together, game is started. (default is unready)
+
+Server pulls the study set from the database when the game is started, and uses an algorithm to 
+shuffle them into a new list of objects. Each is a "question" object with questionText and 4 answers, 
+which include 1 correct answerText and 3 incorrect answerText's from other flashcards in the list. 
+
+The first question is sent to the frontend, which displays it. 
+When a player clicks an answer, the answer is sent to the server through a channel with the 
+timestamp as well. The server also times out the question after, say, 10 seconds, at which point the 
+players are given a 0 and move on to the next question. 
+
+Channel publishes EVENTS, each with a string name for that event and a message 
+object to publish. Subscribers listen for specific event names. 
+
+
+            Channels
+SERVER 
+    const globalChannelChName = "main-game-thread"
+    let globalChannel; 
+
+Game room threads
+    Player->Server
+    --------------
+    - ready 
+    - player answer
+
+    Server->Players
+    ---------------
+    - thread-ready
+    "thread-ready" {
+        start: bool, 
+    }
+    - invite 
+    "invite" {
+        lobbyId: string // use the :primary and :host to get channels from client. 
+        username: string, 
+    }
+    - is game in progress
+    - new question (with question object, not just questionText)
+    - timer
+    - question-timer
+    - all answered
+    - answer results (scoreboard) 
+    - game finished
+
+    Host->Server
+    - start game (if all ready)
+    - choose studyset
+
+
+On client side, only initiate realtime with auth when a lobby has been created... 
+? Maybe notifications need to use ably if we don't want to use a socket thing.. 
+Maybe initiate realtime, but only have a listener on the "invite" event until 
+further notice? 

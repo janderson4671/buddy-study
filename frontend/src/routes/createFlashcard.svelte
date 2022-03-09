@@ -32,6 +32,8 @@
 		}
     }
     async function cancelFlashcard() {
+
+		 goto("/editStudySet");
 	}
 </script>
 

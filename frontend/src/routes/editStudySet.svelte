@@ -37,10 +37,10 @@
         goto("/");
     }
     const gotoSettings = function() {
-        goto("/setting")
+        goto("/setting");
     }
     const gotoDashboard = function() {
-        goto("/dashboard")
+        goto("/dashboard");
     }
 
     const gotoCreateFlashcard = function() {
@@ -52,7 +52,7 @@
     
 	<div class="setting" on:click={gotoSettings}>
         <img class ="setting_img"src="./settings.png" alt="setting_png" width="7%">
-        setting
+        settings
     </div>
    
     <div class="setting" on:click={gotoDashboard}>

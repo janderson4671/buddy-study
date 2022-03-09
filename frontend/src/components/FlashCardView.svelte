@@ -1,6 +1,7 @@
 <script>
     export let question;
     export let answer;
+
 </script>
 
 <div class="flashcard_box">

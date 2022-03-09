@@ -34,7 +34,7 @@
         goto("/");
     }
     const gotoSettings = function() {
-        goto("/setting")
+        goto("/setting");
     }
     const gotoCreateStudySet = function() {
         // Need information about selected study set
@@ -53,9 +53,13 @@
     
 	<div class="setting" on:click={gotoSettings}>
         <img class ="setting_img"src="./settings.png" alt="setting_png" width="7%">
-        setting
+        settings
     </div>
    
+    <div class="setting">
+        <img class ="logout_img"src="./reading.png" alt="dashboard.png" width="7%">
+        dashboard
+    </div>
 
     <div class="logout" on:click={gotoLogin}>
         <img class ="logout_img"src="./logout.png" alt="logout_png" width="7%">

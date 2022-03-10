@@ -6,8 +6,7 @@ const config = {
 		adapter: adapter({
 			env: {
 				host: 'BUDDYSTUDY_HOST',
-				port: 'BUDDYSTUDY_PORT',
-				origin: 'BUDDYSTUDY_ORIGIN'
+				port: 'BUDDYSTUDY_PORT'
 			}
 		})
 	}

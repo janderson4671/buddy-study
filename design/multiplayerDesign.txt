@@ -1,0 +1,37 @@
+Frontend:
+
+    Player : {
+        username: string,
+        isHost: bool,
+        isReady: bool,
+        score: int
+    }
+
+NewLobby Screen:
+* Area displaying generated Lobby Code
+* List of players (host would be automatically added)
+* Button to choose study set (Need variable for currSet) (Host Only)
+* Box displaying name of selected study set
+* StartGame button (Host Only)
+* Ready button (Guest Only)
+
+10-second CountDown screen
+* Timer Display (Need timer variable)
+
+Question Screen
+* Question Number
+* Question Timer (timer variable)
+* Question Display Box
+* 4 Answer Display Boxes (Clickable)
+* Field for Player's selected answer (-1 for unanswered)
+- Fields sent from Server {
+    questionNum: int,
+    questionText: string,
+    choices: string[4],
+}
+
+LeaderBoard Screen
+* PlayerList (usernames, score, isLastQuestion)
+* Timer Viariable (5 sec) (If islastQuestion, then get rid of timer)
+* Play Again Button (if isLastQuestion) (goes back to lobby)
+* Quit Button (if isLastQuestion) (Goes back to dashboard)

@@ -1,16 +1,23 @@
 # ABLY Channels and Events
+
 ## Channels
-Host: 
+---
+### Host: 
+
 * start-game
 * load-studyset
 * kill-lobby
-Player: 
+
+### Player: 
 * ready
+
 * not-ready
 * player-answer
 * play-again
 * leave-lobby
-Lobby: 
+
+### Lobby: 
+
 * thread-ready
 * studyset-loaded
 * new-question
@@ -21,6 +28,10 @@ Lobby:
 * correct-answer
 * kill-lobby
 
+## Event Sequencing
+
+***
+This section includes more than just events, but it is meant to coordinate the moving parts of the application, including REST API calls made in reference to the game. 
 
 ```mermaid
 sequenceDiagram
@@ -148,6 +159,7 @@ sequenceDiagram
     end
 
     opt Lobby Empty
+        L ->> P: game-over
         L --x P: detach()
         L --x H: detach()
         L --x L: detach()

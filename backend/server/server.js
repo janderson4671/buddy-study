@@ -51,7 +51,7 @@ mongoose.connect('mongodb://localhost:27017/buddy-study', {
 /* --- BEGIN Ably Context --- */  
 
 // Channels
-const globalChannelChName = "main-game-thread"
+const globalChannelChName = "main-game-thread"; 
 let globalChannel; 
 
 // Global Variables

@@ -10,7 +10,6 @@
 
 ### Player: 
 * ready
-
 * not-ready
 * player-answer
 * play-again

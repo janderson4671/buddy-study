@@ -3,7 +3,6 @@
 ## Channels
 ---
 ### Host: 
-
 * start-game
 * load-studyset
 * kill-lobby

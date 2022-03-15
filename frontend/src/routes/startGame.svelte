@@ -5,9 +5,6 @@
 	import { goto } from "$app/navigation";
 	let startGameCode = null;
 
-	const api = axios.create({
-		baseURL : "http://localhost:3000"
-	});
     async function startGame() {
 		console.log("check");
     }

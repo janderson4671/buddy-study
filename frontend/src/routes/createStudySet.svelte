@@ -4,16 +4,13 @@
 	import { loggedInUser } from "../stores/stores.js"
 	import { goto } from "$app/navigation"
 	let studyset_title = null;
-	const api = axios.create({
-		baseURL : "http://localhost:3000"
-	});
     async function saveStudySet() {
 		let request = {
 			username: $loggedInUser,
 			subject: studyset_title
 		}
 		try {
-			let response = await api.post("/api/studyset/create", request);
+			let response = await axios.post("/api/studyset/create", request);
 			if (response.data.success) {
 				alert("Successfully made " + studyset_title + " studyset!");
 				goto("/dashboard")

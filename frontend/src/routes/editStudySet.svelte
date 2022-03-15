@@ -6,15 +6,11 @@
     import { goto } from "$app/navigation"
     import FlashCardView from "../components/FlashCardView.svelte";
 
-    const api = axios.create({
-		baseURL : "http://localhost:3000"
-	});
-
-    let flashcards = []
+    let flashcards = [];
 
     onMount(async () => {
         try {
-            let response = await api.get("/api/flashcard/allcards/" + $selectedStudySet);
+            let response = await axios.get("/api/flashcard/allcards/" + $selectedStudySet);
             if (!response.data.success) {
                 alert(response.data.message);
             }

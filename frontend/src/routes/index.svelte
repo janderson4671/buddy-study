@@ -7,10 +7,6 @@
 	let username_input = null;
 	let password_input = null;
 
-	const api = axios.create({
-		baseURL : "http://localhost:3000"
-	});
-
 	async function loginUser() {
 
 		try {
@@ -22,7 +18,7 @@
 			console.log(username_input);
 			console.log(password_input);
 
-			var response = await api.post("/api/user/login", loginRequest);
+			var response = await axios.post("/api/user/login", loginRequest);
 			if (response.data.success) {
 				alert("Welcome " + username_input +"!");
 				// Set the global username

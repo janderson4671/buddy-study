@@ -5,9 +5,6 @@
 	import { goto } from "$app/navigation";
 	let question_input = null;
     let answer_input = null;
-	const api = axios.create({
-		baseURL : "http://localhost:3000"
-	});
     async function saveFlashcard() {
 		console.log("check");
 		try {
@@ -16,7 +13,7 @@
 				questionText: question_input,
 				answerText: answer_input
 			};
-			var response = await api.post("/api/flashcard/create", flashcardRequest);
+			var response = await axios.post("/api/flashcard/create", flashcardRequest);
 			console.log(response.data.success);
 			if (response.data.success) {
 				alert("just added the flash card");

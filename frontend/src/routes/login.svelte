@@ -6,13 +6,9 @@
 	let password = "";
 	let email = "";
 
-	const api = axios.create({
-		baseURL : "http://localhost:3000"
-	});
-
 	async function loginUser() {
 		try {
-			let response = await api.post("/api/user/login", {
+			let response = await axios.post("/api/user/login", {
 				name: name,
 				password: password,
 				

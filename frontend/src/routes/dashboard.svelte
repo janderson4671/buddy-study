@@ -8,16 +8,12 @@
 
     let userStudySets = [];
 
-	const api = axios.create({
-		baseURL : "http://localhost:3000"
-	});
-
     onMount(async () => {
         loadStudySets();
     });
 
     const loadStudySets = async function() {
-        let response = await api.get("/api/studyset/allsets/" + $loggedInUser);
+        let response = await axios.get("/api/studyset/allsets/" + $loggedInUser);
         if (!response.data.success) {
             alert(response.data.message)
         } else {

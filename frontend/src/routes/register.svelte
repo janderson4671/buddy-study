@@ -8,10 +8,6 @@
 	let email_register = "";
 	let src = "../../static/register.png"
 
-	const api = axios.create({
-		baseURL : "http://localhost:3000"
-	});
-
 	async function registerUser() {
 		try {
 			let registerRequest = {
@@ -19,7 +15,7 @@
 				password: password_register,
 				email: email_register
 			};
-			var response = await api.post("/api/user/register", registerRequest);
+			var response = await axios.post("/api/user/register", registerRequest);
 
 			if (response.data.success) {
 				alert("registered " + response.data.username);

@@ -14,7 +14,9 @@
 * leave-lobby
 
 ### Lobby: 
-
+* enter
+* leave
+* update-readied
 * thread-ready
 * studyset-loaded
 * new-question

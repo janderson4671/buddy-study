@@ -10,8 +10,9 @@
 ### Player: 
 * toggle-ready
 * player-answer
-* play-again
-* leave-lobby
+* X play-again X --> not actually needed as a channel, only local page change
+                     just back to the lobby component as is, and unready
+* X leave-lobby X --> sending a presence.leave event is probably sufficient
 
 ### Lobby: 
 * enter

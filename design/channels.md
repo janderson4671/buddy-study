@@ -8,8 +8,7 @@
 * kill-lobby
 
 ### Player: 
-* ready
-* not-ready
+* change-ready
 * player-answer
 * play-again
 * leave-lobby

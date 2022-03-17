@@ -30,7 +30,7 @@ const Q_TIMER_SEC = 7;
 // Channels
 
 const playerChannels = {}; 
-const globalPlayerState = {}; 
+const globalPlayerStates = {}; 
  
 let lobbyChannel; 
 const lobbyChName = `${lobbyId}:primary`; 
@@ -41,7 +41,7 @@ let gameStarted = false;
 let totalPlayers = 1;
 
 let questions = []; 
-let answers = []; 
+let answers = {}; 
 
 /* --- END Ably Context --- */ 
 
@@ -54,6 +54,7 @@ realtime.connection.once("connected", () => {
     lobbyChannel.presence.subscribe("enter", handleNewPlayer); 
     lobbyChannel.presence.subscribe("leave", handlePlayerLeft); 
     lobbyChannel.publish("thread-ready", {start: true}); 
+    lobbyChannel.publish("update-player-states", globalPlayerStates); 
 })
 
 function handleNewPlayer(player) {
@@ -70,6 +71,7 @@ function handleNewPlayer(player) {
         id: newPlayerId, 
         username: player.data.username, 
         isHost: player.data.isHost, 
+        isReady: (player.data.isHost ? true : false),  
         score: 0
     }; 
     
@@ -79,10 +81,8 @@ function handleNewPlayer(player) {
 
     subscribeToPlayer(playerChannels[newPlayerId], newPlayerId); 
     
-    globalPlayerState[newPlayerId] = newPlayerState;  
-    lobbyChannel.publish("new-player", {
-        newPlayerState
-    }); 
+    globalPlayerStates[newPlayerId] = newPlayerState;  
+    lobbyChannel.publish("update-player-states", globalPlayerStates); 
 }
 
 function handlePlayerLeft(player) {
@@ -93,13 +93,13 @@ function handlePlayerLeft(player) {
         lobbyId: lobbyId, 
         totalPlayers: totalPlayers, 
     }); 
-    delete globalPlayerState[leavingPlayerId]; 
     if (leavingPlayerId === hostClientId) {
-        lobbyChannel.publish("host-left", {
-            killLobby: true, 
-        }); 
+        lobbyChannel.publish("kill-lobby", {}); 
         forceKillLobby(); 
-    }
+    } else {
+        delete globalPlayerStates[leavingPlayerId]; 
+        lobbyChannel.publish("update-player-states", globalPlayerStates); 
+    } 
 }
 
 async function publishTimer(event, countDownSec) {
@@ -152,22 +152,18 @@ function subscribeToPlayer(playerChannel, playerId) {
         // if incorrect, don't even bother pushing --> 0
         // Implement check if answer is c'lnipJorrect, as well as timestamp
         // can't change score until after all answers are received
-        // push answer to answers[], as pair {clientId, answerGiven}
+        // add {clientId : answerGiven} to answers{}
     }); 
 }
 
 function forceKillLobby() {
-    lobbyChannel.publish("kill-lobby", {
-        killLobby: true
-    }); 
+    lobbyChannel.publish("kill-lobby", {}); 
     killWorkerThread(); 
 }
 
 async function publishQuestion(qIndex) {
     answers = []
     await lobbyChannel.publish("new-question", {
-        numAnswered: 0, 
-        numPlaying: totalPlayers, 
         questionNumber: qIndex + 1, 
         questionText: questions[qIndex].questionText, 
         choices: questions[qIndex].choices, 

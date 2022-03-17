@@ -17,6 +17,7 @@
 ### Lobby: 
 * enter
 * leave
+* update-player-states
 * update-readied
 * thread-ready
 * studyset-loaded

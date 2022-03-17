@@ -75,6 +75,7 @@ playerState: {
     id: `string`, 
     username: `string`, 
     isHost: `string`, 
+    isReady, `string`, 
     score: `int`
 }
 ```

@@ -5,12 +5,23 @@
     import { loggedInUser } from "../stores/stores.js";
     import { onMount } from "svelte";
 
+    var playerReady = false;    
+
+    var guestPlayer = {
+        username: "guest",
+        isHost: false,
+        isReady: playerReady,
+        score: 0
+    }
+
+    var waitMessage = "Waiting for host...";
 
 	const api = axios.create({
 		baseURL : "http://localhost:3000"
 	});
 
     async function readyGame() {
+        playerReady = true;
 	}
 
 
@@ -71,12 +82,19 @@
 </div>
 
 <!--Need to put this button inside of each study sets-->
+
+{#if !playerReady}
 <div class="buttons">
     <div class="ready_button">
         <button on:click={readyGame}>Ready</button>
     </div>
 
 </div>
+{/if}
+
+{#if playerReady}   
+    <p>Waiting for Host...</p>
+{/if}
 
 <style>
     .top_menu {

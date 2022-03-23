@@ -40,6 +40,10 @@
         // Need information about selected study set
         goto("/createStudySet");
     }
+    const joinGame = function() {
+        goto("/joinGame");
+    }
+
 </script>
 
 
@@ -65,6 +69,10 @@
         <img class ="logout_img"src="./logout.png" alt="logout_png" width="7%">
         logout
     </div>
+</div>
+
+<div class="join_button" on:click={joinGame}>
+    Join Game
 </div>
 
 <div class="study_set">
@@ -129,6 +137,26 @@
         display: flex;
         flex-direction: column;
     }
+
+    .join_button {
+        margin-top: 3%;
+        border-radius: 30px;
+		font-family: 'Fira Sans Condensed', sans-serif;
+		font-style: normal;
+		font-weight: normal;
+		font-size: 1.2vw;
+		text-align: center;
+		background:#79C8F4;
+		color: black;
+		width: 10vw;
+		height: 3vw;
+		border: none;
+		box-shadow: 2px 3px gray;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">

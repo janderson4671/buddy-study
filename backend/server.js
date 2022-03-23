@@ -237,8 +237,8 @@ app.post("/api/flashcard/create", async (req, res) => {
         const flashCard = new FlashCard({
             studysetID: req.body.studysetID, 
             questionNum: req.body.questionNum, 
-            question: req.body.questionText,
-            answer: req.body.answerText,
+            questionText: req.body.questionText,
+            answerText: req.body.answerText,
         }); 
         await flashCard.save();
         res.send({

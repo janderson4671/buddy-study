@@ -46,6 +46,11 @@
     const gotoCreateFlashcard = function() {
         goto("./createFlashcard");
     }
+
+    const startGame = function() {
+        goto("./startGame");
+    }
+
 </script>
 
 <div class="top_menu">
@@ -76,6 +81,10 @@
     {#each flashcards as { question, answer }}
         <FlashCardView question={question} answer={answer}/>
     {/each}
+</div>
+
+<div class="start_button" on:click={startGame}>
+    Start Game
 </div>
 
 <style>
@@ -127,6 +136,26 @@
         display: flex;
         flex-direction: column;
     }
+
+    .start_button {
+        margin-top: 3%;
+        border-radius: 30px;
+		font-family: 'Fira Sans Condensed', sans-serif;
+		font-style: normal;
+		font-weight: normal;
+		font-size: 1.2vw;
+		text-align: center;
+		background:#79C8F4;
+		color: black;
+		width: 10vw;
+		height: 3vw;
+		border: none;
+		box-shadow: 2px 3px gray;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">

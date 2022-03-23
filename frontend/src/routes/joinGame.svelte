@@ -5,13 +5,18 @@
 	import { goto } from "$app/navigation";
 	let joinGameCode = null;
 
+	var isReady = false;
+
 	const api = axios.create({
 		baseURL : "http://localhost:3000"
 	});
     async function joinGame() {
 		console.log("check");
+		// this needs to be changed to validate the code and retrieve the game
+		goto("./lobbyguest");
     }
     async function cancelJoinGame() {
+		goto("./dashboard");
 	}
 
     const gotoLogin = function() {

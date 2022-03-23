@@ -2,8 +2,18 @@
     export const prerender = true;
 	import axios from "axios";
     import { goto } from "$app/navigation";
-    import { loggedInUser } from "../stores/stores.js";
+    
+    import { loggedInUser, selectedStudySet } from "../stores/stores.js"
     import { onMount } from "svelte";
+
+    var hostPlayer = {
+        username: "host",
+        isHost: true,
+        isReady: false,
+        score: 0
+    }
+
+    var gameCode = 123456;
 
 
 	const api = axios.create({
@@ -11,10 +21,11 @@
 	});
 
     async function startGame() {
+        goto("./gameCountDown");
 	}
 
     async function editStudySet() {
-
+        goto("./lobbymain");
     }
 
     const gotoLogin = function() {
@@ -57,12 +68,31 @@
 <!-- Should show the list of people in here -->
 <!-- <div class="guest_list">
     {#each  as {}}
+        player.username 
+        {#if player.isReady}
+            Ready!
+        {/if}
+        {#if !player.isReady}
+            waiting...
+        {/if}
     {/each}
 </div> -->
 
 <div class="buddyCode">
     tempBuddy Code: sdf468w!
+
+    <p>Player1</p>
+    <p>Player2</p>
 </div>
+
+
+<div class="studysetTitle">
+    Geography
+
+    <!--Study Set: {$selectedStudySet.subject}-->
+</div>
+
+
 
 <!--Need to put this button inside of each study sets-->
 <div class="buttons">
@@ -135,6 +165,13 @@
     }
 
     .buddyCode {
+        text-align: center;
+        font-family: 'Fira Sans Condensed', sans-serif;
+        font-weight: bold;
+        margin: 3%;
+    }
+
+    .studysetTitle {
         text-align: center;
         font-family: 'Fira Sans Condensed', sans-serif;
         font-weight: bold;

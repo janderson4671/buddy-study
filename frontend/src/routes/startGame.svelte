@@ -10,8 +10,10 @@
 	});
     async function startGame() {
 		console.log("check");
+		goto("./lobbyhost");
     }
     async function cancelStartGame() {
+		goto("/dashboard")
 	}
 
     const gotoLogin = function() {
@@ -48,14 +50,15 @@
     </div>
 </div>
 
-<p class ="title">Join The Game!</p>
+<p class ="title">Start The Game!</p>
 
 
 <!--TODO: need to generate buddy code when it is host not userInput-->
 
 <div class="user_input">
 	<p class ="enterBuddyCode">Buddy Code</p>
-	<input bind:value={startGameCode}>
+	<!--<input bind:value={startGameCode}> -->
+	12345
 
 </div>
 

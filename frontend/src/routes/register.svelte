@@ -2,14 +2,16 @@
 	export const prerender = true;
 	import axios from "axios";
 	import { goto } from "$app/navigation"
+	import { IS_DEPLOYED } from "../stores/stores";
 
 	let username_register = "";
 	let password_register = "";
 	let email_register = "";
 	let src = "../../static/register.png"
 
+	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
-		baseURL : "http://localhost:3000"
+		baseURL : apiURL
 	});
 
 	async function registerUser() {

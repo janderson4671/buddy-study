@@ -1,12 +1,13 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
-	import { selectedStudySet } from "../stores/stores.js"
+	import { selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
 	import { goto } from "$app/navigation";
 	let question_input = null;
     let answer_input = null;
+	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
-		baseURL : "http://localhost:3000"
+		baseURL : apiURL
 	});
     async function saveFlashcard() {
 		console.log("check");

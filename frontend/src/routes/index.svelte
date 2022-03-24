@@ -1,14 +1,18 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
-	import { loggedInUser } from "../stores/stores.js"
+	import { loggedInUser, IS_DEPLOYED } from "../stores/stores.js"
 	import { goto } from "$app/navigation"
 
 	let username_input = null;
 	let password_input = null;
 
+	// CHANGE THIS IF WE ARE DEPLOYING!!!
+	// $IS_DEPLOYED = true;
+
+	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
-		baseURL : "http://localhost:3000"
+		baseURL : apiURL
 	});
 
 	async function loginUser() {
@@ -54,6 +58,7 @@
 
 <div class="title">
 	<div class='blank'>
+		<h1>{apiURL}</h1>
 		Buddy<img class ="logoImg"src="./reading.png" alt="logo_png" width="6%">
 	</div>
 	STUDY!

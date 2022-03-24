@@ -1,11 +1,12 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
-	import { loggedInUser } from "../stores/stores.js"
+	import { loggedInUser, IS_DEPLOYED } from "../stores/stores.js"
 	import { goto } from "$app/navigation"
 	let studyset_title = null;
+	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
-		baseURL : "http://localhost:3000"
+		baseURL : apiURL
 	});
     async function saveStudySet() {
 		let request = {

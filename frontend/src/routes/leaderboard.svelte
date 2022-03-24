@@ -2,7 +2,7 @@
 
     export const prerender = true;
 	import axios from "axios";
-	import { selectedStudySet } from "../stores/stores.js"
+	import { selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
 	import { goto } from "$app/navigation";
 	let startGameCode = null;
 
@@ -10,6 +10,11 @@
     var isLastQuestion = false;
 
     var players = ["Player1", "Player2"];
+
+    let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
+	const api = axios.create({
+		baseURL : apiURL
+	});
 
     const exitGame = function() {
         goto("/dashboard");

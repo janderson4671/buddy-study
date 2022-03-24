@@ -2,12 +2,12 @@
     export const prerender = true;
 	import axios from "axios";
     import { goto } from "$app/navigation";
-    import { loggedInUser } from "../stores/stores.js";
+    import { loggedInUser, IS_DEPLOYED } from "../stores/stores.js";
     import { onMount } from "svelte";
 
-
+	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
-		baseURL : "http://localhost:3000"
+		baseURL : apiURL
 	});
 
     async function startGame() {

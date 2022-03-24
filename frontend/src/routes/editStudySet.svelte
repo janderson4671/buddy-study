@@ -1,13 +1,14 @@
 <script>
     export const prerender = true;
-    import { loggedInUser, selectedStudySet } from "../stores/stores.js"
+    import { loggedInUser, selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
     import { onMount } from "svelte";
     import axios from "axios";
     import { goto } from "$app/navigation"
     import FlashCardView from "../components/FlashCardView.svelte";
 
-    const api = axios.create({
-		baseURL : "http://localhost:3000"
+	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
+	const api = axios.create({
+		baseURL : apiURL
 	});
 
     let flashcards = []

@@ -3,7 +3,7 @@
 	import axios from "axios";
     import { goto } from "$app/navigation";
     
-    import { loggedInUser, selectedStudySet } from "../stores/stores.js"
+    import { loggedInUser, selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
     import { onMount } from "svelte";
 
     var hostPlayer = {
@@ -16,8 +16,9 @@
     var gameCode = 123456;
 
 
+	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
-		baseURL : "http://localhost:3000"
+		baseURL : apiURL
 	});
 
     async function startGame() {

@@ -1,9 +1,11 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
+	import { IS_DEPLOYED } from "../stores/stores"
 
+	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
-		baseURL : "http://localhost:3000"
+		baseURL : apiURL
 	});
 
 	async function createFlashCard() {

@@ -13,8 +13,8 @@ const userSchema = new mongoose.Schema({
 const flashCardSchema = new mongoose.Schema({
     flashcardID: String, 
     studysetID: String, 
-    question: String,
-    answer: String,
+    questionText: String,
+    answerText: String,
 }); 
 
 // Schema for studysets

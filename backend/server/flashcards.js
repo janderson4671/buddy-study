@@ -45,8 +45,8 @@ router.post("/create", async (req, res) => {
         const flashCard = new FlashCard({
             flashcardID: uuid.v4(), 
             studysetID: req.body.studysetID, 
-            question: req.body.questionText,
-            answer: req.body.answerText,
+            questionText: req.body.questionText,
+            answerText: req.body.answerText,
         }); 
         await flashCard.save();
         res.send({

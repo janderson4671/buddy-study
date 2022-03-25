@@ -61,34 +61,55 @@ let clearFlashcards = async function() {
 }
 /******************************************************************************/
 
-/************************** SET UP TESTS ***************************/
+/************************** GAME TESTS ***************************/
 
-let setUpTests = async function setUpTests() {
+let hostTests = async function hostTests() {
 
-    console.log("\n -------------------- BEGIN SET UP TESTS -------------------- \n");
+    console.log("\n -------------------- BEGIN GAME TESTS -------------------- \n");
 
     // Clear entire local database
     await clearUsers(); 
     await clearStudySets(); 
     await clearFlashcards(); 
 
-    // Connect to ABLY Realtime instance
+    let realtime = null; 
+
+    // Open ABLY Realtime Connection
     try {
-        let realtime = await Ably.Realtime({
+        realtime = await Ably.Realtime({
             authUrl: "http://localhost:3000/api/game/auth"
-        }); 
-        console.log("1" + (realtime == null ? true : false)); 
+        });
     } catch (error) {
         reportFailure(error); 
         process.exit(1); 
     }
-    console.log("2" + (realtime == null ? true : false)); 
+
+    // LOOK AT WHAT YOU HAVE IN HOST.JS, might help
+
+    /*  List of Tasks:
+    
+    - REST API call to /api/game/newlobby, get lobbyId
+    - enter the globalChannel with username and lobbyId
+        - this should cause lobby thread to be created
+        - add some print statements in lobby thread to 
+          verify
+     
+
+
+
+
+
+
+
+
+    */ 
+
+    // Close ABLY Realtime Connection
+    realtime.connection.close(); 
 } 
 
 let tests = async function() {
-    await setUpTests(); 
+    await hostTests(); 
 }
 
 tests();
-console.log("3" + (realtime == null ? true : false)); 
-// realtime.connection.close(); 

@@ -1,9 +1,11 @@
 // Testing setup
 const axios = require("axios"); 
-const {response} = require("express"); 
+const {response} = require("express");
 const api = axios.create({
-    baseURL : "http://localhost:3001"
+    baseURL : "http://localhost:3000"
 }); 
+const Ably = require("ably"); 
+let realtime = null; 
 
 /************************** TESTING UTILITY METHODS ***************************/
 let reportFailure = function(message) {
@@ -20,7 +22,7 @@ let assertNotNull = function(object) {
 
 let clearUsers = async function() {
     try {
-        let response = await api.get("/api/database/clearUsers");
+        let response = await api.get("/api/user/clear");
         if (!response.data.success) {
             throw "Clear User Database Failed!"
         }
@@ -33,7 +35,7 @@ let clearUsers = async function() {
 
 let clearStudySets = async function() {
     try {
-        let response = await api.get("/api/database/clearStudySets");
+        let response = await api.get("/api/studyset/clear");
         if (!response.data.success) {
             console.log("Error Message: " + response.data.message); 
             throw "Clear StudySet Database Failed!"
@@ -44,9 +46,10 @@ let clearStudySets = async function() {
     }
     
 }
+
 let clearFlashcards = async function() {
     try {
-        let response = await api.get("/api/database/clearFlashcards");
+        let response = await api.get("/api/flashcard/clear");
         if (!response.data.success) {
             console.log("Error Message: " + response.data.message); 
             throw "Clear Flashcard Database Failed!"
@@ -58,36 +61,34 @@ let clearFlashcards = async function() {
 }
 /******************************************************************************/
 
+/************************** SET UP TESTS ***************************/
 
-/************************** GAME API TESTS ***************************/
+let setUpTests = async function setUpTests() {
 
-let createGameTests = async function createGameTests() {
-    console.log("\n -------------------- BEGIN CREATE GAME TESTS -------------------- \n");
+    console.log("\n -------------------- BEGIN SET UP TESTS -------------------- \n");
 
-    let validCreateGameRequest = {
-        username: "person123", 
-        studysetID: "12345", 
-    }; 
-    
+    // Clear entire local database
+    await clearUsers(); 
+    await clearStudySets(); 
+    await clearFlashcards(); 
+
+    // Connect to ABLY Realtime instance
     try {
-        var response = await api.post("/api/game/create", validCreateGameRequest); 
-        
-        assertNotNull(response); 
-
-        if (response.data.success) {
-            console.log("lobbyID: " + response.data.lobbyID); 
-        } else {
-            console.log("Error Message: " + response.data.message); 
-            throw "Create game failed when it should not have";
-        } 
+        let realtime = await Ably.Realtime({
+            authUrl: "http://localhost:3000/api/game/auth"
+        }); 
+        console.log("1" + (realtime == null ? true : false)); 
     } catch (error) {
         reportFailure(error); 
         process.exit(1); 
     }
-}
+    console.log("2" + (realtime == null ? true : false)); 
+} 
 
 let tests = async function() {
-    await createGameTests(); 
+    await setUpTests(); 
 }
 
-tests(); 
+tests();
+console.log("3" + (realtime == null ? true : false)); 
+// realtime.connection.close(); 

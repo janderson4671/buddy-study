@@ -587,7 +587,6 @@ let flashcardTests = async function flashcardTests() {
             console.log("Error Message: " + response.data.message); 
             throw "Valid flashcard Update was unsuccessful"
         }
-
         // Invalid Update
         response = await api.post("/api/flashcard/update", invalidUpdate);
         if (response.data.success) {
@@ -614,6 +613,9 @@ let flashcardTests = async function flashcardTests() {
         if (response.data.flashCards.length != 2) {
             throw "Did not get exactly 2 flashcards from the database"
         }
+        // } else {
+        //     console.log(response.data.flashCards); 
+        // }
 
         // Invalid retrieval of flashcards for non-existing study set
         response = await api.get("/api/flashcard/allcards/dontexist");

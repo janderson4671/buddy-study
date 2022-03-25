@@ -10,14 +10,22 @@ const StudySet = models.studysetModel;
 
 router.get("/clear", async (req, res) => {
     try {
-        FlashCard.collection.drop()
+        await FlashCard.collection.drop()
         res.send({
             success : true,
             message: "FlashCard Database Cleared!"
         });
     } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
+        if (error.code === 26) {
+            console.log("FlashCard collection does not exist"); 
+            res.send({
+                success: true, 
+                message: "FlashCard Database was already empty"
+            }); 
+        } else {
+            console.log(error);     
+            res.sendStatus(500); 
+        }
     }
 })
 

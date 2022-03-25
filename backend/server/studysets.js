@@ -10,14 +10,22 @@ const StudySet = models.studysetModel;
 
 router.get("/clear", async (req, res) => {
     try {
-        StudySet.collection.drop()
+        await StudySet.collection.drop()
         res.send({
             success: true,
             message: "StudySet Database Cleared!"
         }); 
     } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
+        if (error.code === 26) {
+            console.log("StudySet collection does not exist"); 
+            res.send({
+                success: true, 
+                message: "StudySet Database was already empty"
+            }); 
+        } else {
+            console.log(error);     
+            res.sendStatus(500); 
+        }
     }
 })
 

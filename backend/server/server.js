@@ -65,6 +65,9 @@ realtime.connection.once("connected", () => {
     globalChannel = realtime.channels.get(globalChannelChName);
     globalChannel.presence.subscribe("enter", (player) => {
         console.log(`New Game Lobby Host: ${player.data.username}`); 
+        activeGameRooms[lobbyId] = {
+            host: req.body.username
+        } 
         createNewLobby(
             player.data.username, 
             player.data.lobbyId, 
@@ -111,13 +114,6 @@ app.get("/api/game/newlobby", async (req, res) => {
             return; 
         }
         const lobbyId = uuid.v4(); 
-        activeGameRooms[lobbyId] = {
-            host: req.body.username
-        } 
-        globalChannel.presence.enter({
-            username: req.body.username, 
-            lobbyId: lobbyId
-        }); 
         res.send({
             lobbyId: lobbyId, 
             success: true

@@ -25,6 +25,7 @@
 * question-timer
 * countdown-timer
 * leaderboard-timer
+* new-leaderboard
 * next-question-timer
 * correct-answer
 * kill-lobby
@@ -146,7 +147,7 @@ sequenceDiagram
             P ->> L: player-answer*
             L ->> P: correct-answer
             L ->> P: leaderboard-timer
-            L ->> P: leaderboard 
+            L ->> P: new-leaderboard 
             alt isLastQuestion
                 alt Back to Lobby
                     P ->> L: play-again

@@ -35,7 +35,7 @@ player: {
 * leaderboard: `leaderboard`
 ```
 leaderboard: {
-    isLastQ: bool, 
+    isLastQuestion: bool, 
     playerScores: [
         {
             username: string,
@@ -68,6 +68,10 @@ lobby: {
 * GAME_ROOM_CAPACITY: `int`
 * START_TIMER_SEC: `int`
 * Q_TIMER_SEC: `int`
+* LEADERBOARD_TIMER_SEC: `int`
+* NEXT_QUESTION_TIMER_SEC: `int`
+* SMALLEST_SET_ALLOWED = `int`
+* NUM_FAKE_ANSWERS = `int`
 * playerChannels[ clientId: `string` ]: `ably-channel`
 * globalPlayerState[ clientId: `string` ]: `playerState`
 ```
@@ -84,7 +88,19 @@ playerState: {
 * hostAdminCh: `ably-channel`
 * hostAdminChName: `string`
 * gameStarted: `bool`
+* curStudysetID: `string`
 * totalPlayers: `int`
+* readyCount: `int`
+* questionClosed: `bool`
+* curQuestionNum: `int`
+* playerAnswers: [ clientId: `string` ]: `bool`
+* leaderboard: playerInfo[]
+```
+playerInfo: {
+    username: string, 
+    score: int
+}
+```
 * questions: `question[]`
 ```
 question: {

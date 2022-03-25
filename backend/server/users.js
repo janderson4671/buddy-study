@@ -18,7 +18,6 @@ router.get("/clear", async (req, res) => {
         });
     } catch (error) {
         if (error.code === 26) {
-            console.log("User collection does not exist"); 
             res.send({
                 success: true, 
                 message: "User Database was already empty"

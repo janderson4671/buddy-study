@@ -17,7 +17,6 @@ router.get("/clear", async (req, res) => {
         }); 
     } catch (error) {
         if (error.code === 26) {
-            console.log("StudySet collection does not exist"); 
             res.send({
                 success: true, 
                 message: "StudySet Database was already empty"

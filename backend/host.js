@@ -32,7 +32,7 @@ function createLobby() {
     this.lobbyChannel = this.realtime.channels.get(
         `${this.lobbyId}:primary`
     );
-    this.hostAdminCh = this.realtime.channels.lget(
+    this.hostAdminCh = this.realtime.channels.get(
         `${this.lobbyId}:host`
     ); 
     this.lobbyChannel.subscribe("thread-ready", () => {

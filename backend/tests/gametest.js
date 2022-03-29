@@ -5,9 +5,20 @@ const api = axios.create({
     baseURL : "http://localhost:3000"
 }); 
 const Ably = require("ably"); 
-let realtime = null; 
+const readline = require("readline"); 
 
 /************************** TESTING UTILITY METHODS ***************************/
+function pauseForUserInput(query) {
+    const rl = readline.createInterface({
+        input: process.stdin, 
+        output: process.stdout, 
+    }); 
+    return new Promise(resolve => rl.question(query, ans => {
+        rl.close(); 
+        resolve(ans); 
+    })); 
+}
+
 let reportFailure = function(message) {
     console.error("ERROR: " + message);
 }
@@ -76,8 +87,9 @@ let createLobbyRequest = {
 
 let hostTests = async function hostTests() {
     data = {
+        realtime: null, 
         username: "person123", 
-        globalChannelChName: null, 
+        globalChannelChName: "main-game-thread", 
         globalChannel: null, 
         lobbyId: null, 
         hostAdminCh: null, 
@@ -91,18 +103,16 @@ let hostTests = async function hostTests() {
     await clearStudySets(); 
     await clearFlashcards(); 
 
-    let realtime = null; 
-
     // Open ABLY Realtime Connection
     try {
-        realtime = await Ably.Realtime({
+        data.realtime = await Ably.Realtime({
             authUrl: "http://localhost:3000/api/game/auth"
         });
     } catch (error) {
         reportFailure(error); 
         process.exit(1); 
     }
-    if (realtime != null) {
+    if (data.realtime != null) {
         console.log("SUCCESS: Connected to ABLY API"); 
     }
 
@@ -137,7 +147,8 @@ let hostTests = async function hostTests() {
         process.exit(1); 
     }
 
-    // Create Lobby
+
+    // Get a Lobby ID
     try {
         let res = await api.get("/api/game/newlobby" + "?username=" + data.username); 
         if (!res.data.success) {
@@ -154,11 +165,39 @@ let hostTests = async function hostTests() {
         process.exit(1); 
     }
 
+    // Initialize Lobby and Admin Channels
+    data.lobbyChannel = data.realtime.channels.get(
+        `${data.lobbyId}:primary`
+    ); 
+    data.hostAdminCh = data.realtime.channels.get(
+        `${data.lobbyId}:host`
+    ); 
 
+    data.lobbyChannel.subscribe("thread-ready", () => {
+        // Handle Lobby Prepared
+        data.lobbyReady = true; 
+        data.globalChannel.detach(); 
 
+        // Enter Lobby
+        data.lobbyChannel.presence.enter({
+            username: data.username, 
+            isHost: true, 
+        }); 
+        
+        // Subscribe to Lobby Channels
+        // data.lobbyChannel.subscribe() ... 
+    })
 
+    // Enter Main Thread
+    data.globalChannel = data.realtime.channels.get(data.globalChannelChName); 
+    data.globalChannel.presence.enter({
+        username: data.username, 
+        lobbyId: data.lobbyId
+    }); 
+
+    await pauseForUserInput("Please press ENTER to continue..."); 
     // Close ABLY Realtime Connection
-    realtime.connection.close(); 
+    data.realtime.connection.close(); 
 } 
 
 let tests = async function() {

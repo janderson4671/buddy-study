@@ -67,7 +67,7 @@ realtime.connection.once("connected", () => {
 })
 
 function handleNewPlayer(player) {
-    console.log(player.date.username + " joined the game!"); 
+    console.log(player.data.username + " joined the game!"); 
     const newPlayerId = player.clientId; 
     totalPlayers++; 
     parentPort.postMessage({
@@ -97,7 +97,7 @@ function handleNewPlayer(player) {
 }
 
 function handlePlayerLeft(player) {
-    console.log(player.clientId + " left the lobby"); 
+    console.log(globalPlayerStates[player.clientId].username + " left the lobby"); 
     const leavingPlayerId = player.clientId;
     totalPlayers--; 
     parentPort.postMessage({

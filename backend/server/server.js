@@ -56,7 +56,6 @@ let globalChannel;
 
 // Global Variables
 let activeLobbies = {};
-totalPlayersOnServer = 0; 
 
 /* --- END Ably Context --- */ 
 
@@ -136,6 +135,7 @@ function createNewLobby(hostUsername, lobbyId, hostClientId) {
         console.log(`CREATING NEW THREAD WITH ID ${threadId}`); 
         worker.on("error", (error) => {
             console.log(`WORKER EXITED DUE TO AN ERROR ${error}`); 
+            console.log(`# of Active Lobbies: ${Object.keys(activeLobbies).length}`); 
         }); 
         worker.on("message", (msg) => {
             if (msg.lobbyId && !msg.killWorker) {
@@ -143,10 +143,10 @@ function createNewLobby(hostUsername, lobbyId, hostClientId) {
                     totalPlayers: msg.totalPlayers, 
                     gameStarted: msg.gameStarted, 
                 }; 
-                totalPlayersOnServer += msg.totalPlayers; 
+                console.log(`# of Active Lobbies: ${Object.keys(activeLobbies).length}`); 
             } else if (msg.lobbyId && msg.killWorker) {
-                totalPlayersOnServer -= msg.totalPlayers; 
                 delete activeLobbies[msg.lobbyId]; 
+                console.log(`# of Active Lobbies: ${Object.keys(activeLobbies).length}`); 
             } else {
                 activeLobbies[msg.lobbyId].gameStarted = msg.gameStarted; 
                 console.log("Main thread aware of game started.."); 
@@ -158,6 +158,7 @@ function createNewLobby(hostUsername, lobbyId, hostClientId) {
             if (code != 0) {
                 console.log(`WORKER EXITED DUE TO AN ERROR WITH CODE ${code}`); 
             }
+            console.log(`# of Active Lobbies: ${Object.keys(activeLobbies).length}`); 
         }); 
     }
 }

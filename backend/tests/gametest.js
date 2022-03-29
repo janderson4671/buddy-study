@@ -13,7 +13,7 @@ function pauseForUserInput(query) {
         input: process.stdin, 
         output: process.stdout, 
     }); 
-    return new Promise(resolve => rl.question(query, ans => {
+    return new Promise(resolve => rl.question(query + "\n", ans => {
         rl.close(); 
         resolve(ans); 
     })); 
@@ -87,14 +87,45 @@ let createLobbyRequest = {
 
 let hostTests = async function hostTests() {
     data = {
+        /* --- Host Base Variables --- */ 
+        hostAdminCh: null, 
+        lobbyReady: false, 
+        chosenStudySet: null, 
+
+        /* --- Normal Player Base Variables --- */ 
         realtime: null, 
         username: "person123", 
+        myClientId: null, 
         globalChannelChName: "main-game-thread", 
         globalChannel: null, 
         lobbyId: null, 
-        hostAdminCh: null, 
         lobbyChannel: null, 
-        lobbyReady: false, 
+        myPlayerCh: null, 
+        players: {}, 
+        curStudySetName: null,
+        isReady: true,  
+        gameStarted: false, 
+        gameKilled: false, 
+
+        /* --- In-Game Variables --- */ 
+        // Game Countdown View
+        countdownTimer: 0, 
+
+        // Question View
+        qNum: 0, 
+        qTimer: 0, 
+        qText: null, 
+        options: null, 
+        playerAnswer: null, 
+        correctAnswer: null, 
+        leaderboardTimer: null, 
+
+        // Leaderboard View
+        isLastQuestion: false, 
+        leaderboard: null, 
+        nextQTimer: 0, 
+        playAgainSelected: false, 
+        quitSelected: false, 
     }
     console.log("\n -------------------- BEGIN GAME TESTS -------------------- \n");
 
@@ -147,7 +178,6 @@ let hostTests = async function hostTests() {
         process.exit(1); 
     }
 
-
     // Get a Lobby ID
     try {
         let res = await api.get("/api/game/newlobby" + "?username=" + data.username); 
@@ -173,6 +203,7 @@ let hostTests = async function hostTests() {
         `${data.lobbyId}:host`
     ); 
 
+    // Once thread is prepared we can subscribe to the lobby
     data.lobbyChannel.subscribe("thread-ready", () => {
         // Handle Lobby Prepared
         data.lobbyReady = true; 
@@ -185,8 +216,52 @@ let hostTests = async function hostTests() {
         }); 
         
         // Subscribe to Lobby Channels
-        // data.lobbyChannel.subscribe() ... 
-    })
+        data.lobbyChannel.subscribe("update-player-states", msg => {
+            data.players = msg.data; 
+            console.log("New Player States Published:"); 
+            console.log(data.players); 
+        }); 
+        data.lobbyChannel.subscribe("update-readied", msg => {
+            data.players[msg.data.playerId] = msg.data.isReady; 
+        }); 
+        data.lobbyChannel.subscribe("studyset-loaded", msg => {
+            data.curStudySetName = msg.data.studysetSubject; 
+        }); 
+        data.lobbyChannel.subscribe("countdown-timer", msg => {
+            data.gameStarted = true; 
+            data.countdownTimer = msg.data.countDownSec; 
+        }); 
+        data.lobbyChannel.subscribe("new-question", msg => {
+            data.qNum = msg.data.questionNumber; 
+            data.qText = msg.data.questionText; 
+            data.options = msg.data.choices; 
+        }); 
+        data.lobbyChannel.subscribe("question-timer", msg => {
+            data.qTimer = msg.data.countDownSec; 
+        }); 
+        data.lobbyChannel.subscribe("correct-answer", msg => {
+            data.correctAnswer = msg.data.answerText; 
+        }); 
+        data.lobbyChannel.subscribe("leaderboard-timer", msg => {
+            data.leaderboardTimer = msg.data.countDownSec; 
+        }); 
+        data.lobbyChannel.subscribe("new-leaderboard", msg => {
+            data.isLastQuestion = msg.data.isLastQuestion; 
+            data.leaderboard = msg.data.leaderboard; 
+        }); 
+        data.lobbyChannel.subscribe("next-question-timer", msg => {
+            data.nextQuestionTimer = msg.data.countDownSec; 
+        }); 
+        data.lobbyChannel.subscribe("kill-lobby", msg => {
+            data.gameKilled = true; 
+        }); 
+
+        // Set up my Player channel
+        data.myClientId = data.realtime.auth.clientId; 
+        data.myPlayerCh = data.realtime.channels.get(
+            `${data.lobbyId}:player-ch-${data.myClientId}`
+        ); 
+    }); 
 
     // Enter Main Thread
     data.globalChannel = data.realtime.channels.get(data.globalChannelChName); 
@@ -194,6 +269,26 @@ let hostTests = async function hostTests() {
         username: data.username, 
         lobbyId: data.lobbyId
     }); 
+
+    function toggleReady() {
+        data.isReady = !data.isReady;
+        if (myPlayerCh != null) {
+            myPlayerCh.publish("toggle-ready", {
+                ready: data.isReady
+            }); 
+        }
+    }
+
+    function answerQuestion(indexOfPicked) {
+        data.playerAnswer = data.options[indexOfPicked]; 
+        if (myPlayerCh != null) {
+            myPlayerCh.publish("player-answer", {
+                answerText: data.playerAnswer
+            }); 
+        } else {
+            throw "Shouldn't be able to answer question before initializing player channel..";
+        }
+    }
 
     await pauseForUserInput("Please press ENTER to continue..."); 
     // Close ABLY Realtime Connection

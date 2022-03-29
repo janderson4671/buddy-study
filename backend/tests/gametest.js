@@ -63,8 +63,27 @@ let clearFlashcards = async function() {
 
 /************************** GAME TESTS ***************************/
 
-let hostTests = async function hostTests() {
+let hostRegisterRequest = {
+    username: "person123", 
+    password: "password", 
+    email: "randomemail@email.com"
+}
 
+let createLobbyRequest = {
+    username: "person123"
+}
+
+
+let hostTests = async function hostTests() {
+    data = {
+        username: "person123", 
+        globalChannelChName: null, 
+        globalChannel: null, 
+        lobbyId: null, 
+        hostAdminCh: null, 
+        lobbyChannel: null, 
+        lobbyReady: false, 
+    }
     console.log("\n -------------------- BEGIN GAME TESTS -------------------- \n");
 
     // Clear entire local database
@@ -83,6 +102,9 @@ let hostTests = async function hostTests() {
         reportFailure(error); 
         process.exit(1); 
     }
+    if (realtime != null) {
+        console.log("SUCCESS: Connected to ABLY API"); 
+    }
 
     // LOOK AT WHAT YOU HAVE IN HOST.JS, might help
 
@@ -92,17 +114,48 @@ let hostTests = async function hostTests() {
     - enter the globalChannel with username and lobbyId
         - this should cause lobby thread to be created
         - add some print statements in lobby thread to 
-          verify
+          verify that the lobby has actually been created
+        
      
 
-
-
-
-
-
-
-
     */ 
+
+    // Register the host
+    try {
+        let res = await api.post("/api/user/register", hostRegisterRequest); 
+        
+        assertNotNull(res); 
+
+        if (!res.data.success) {
+            console.log("Error Message: " + res.data.message); 
+            throw "Failed to register the host";
+        }
+
+        reportSuccess("Host Successfully Registered"); 
+    } catch (error) {
+        reportFailure(error); 
+        process.exit(1); 
+    }
+
+    // Create Lobby
+    try {
+        let res = await api.get("/api/game/newlobby" + "?username=" + data.username); 
+        if (!res.data.success) {
+            console.log("Error Message: " + res.data.message); 
+            throw "Create Lobby Failed - marked unsuccessful";
+        }
+        if (res.data.lobbyId == null) {
+            throw "Create Lobby Failed - lobbyId is null"
+        } 
+        data.lobbyId = res.data.lobbyId; 
+        reportSuccess("Lobby created -- ID received"); 
+    } catch (error) {
+        reportFailure(error); 
+        process.exit(1); 
+    }
+
+
+
 
     // Close ABLY Realtime Connection
     realtime.connection.close(); 

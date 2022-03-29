@@ -77,7 +77,6 @@ function handleNewPlayer(player) {
     }); 
 
     let newPlayerState = {
-        id: newPlayerId, 
         username: player.data.username, 
         isHost: player.data.isHost, 
         isReady: (player.data.isHost ? true : false),  

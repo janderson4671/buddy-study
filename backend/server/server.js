@@ -65,7 +65,7 @@ realtime.connection.once("connected", () => {
     globalChannel = realtime.channels.get(globalChannelChName);
     globalChannel.presence.subscribe("enter", (player) => {
         console.log(`New Game Lobby Host: ${player.data.username}`); 
-        activeGameRooms[lobbyId] = {
+        activeLobbies[player.data.lobbyId] = {
             host: player.data.username
         } 
         createNewLobby(

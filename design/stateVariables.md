@@ -1,8 +1,15 @@
 # Buddy Study
 ## State Variables: Frontend 
-### Host view 
-* lobbyCode: `string`
+### Host (only) View 
+* chosenStudySet: `string`
+* gameStarted: `bool`
+
+### Player View (including host)
+* lobbyId: `string`
+* myClientId: `string`
 * players[ clientId: `string` ]: `player`
+* curStudySetName: `string`
+* isReady: `bool`
 ```
 player: {
     username: string,
@@ -11,16 +18,6 @@ player: {
     // score: int
 }
 ```
-* chosenStudySet: `string`
-* curStudySetName: `string`
-* gameStarted: `bool`
-
-### Player View
-* lobbyCode: `string`
-* players: `string[]` 
-* curStudySetName: `string`
-* isReady: `bool`
-
 ### Game Countdown View
 * countdownTimer: `int`
 
@@ -29,13 +26,16 @@ player: {
 * qTimer: `int`
 * qText: `string`
 * options: `string[4]`
-* playerAnswer: `int`
+* playerAnswer: `string`
+* correctAnswer: `string`
+* leaderboardTimer: `int`
 
 ### Leaderboard View
+* isLastQuestion: bool
 * leaderboard: `leaderboard`
 ```
 leaderboard: {
-    isLastQuestion: bool, 
+    
     playerScores: [
         {
             username: string,
@@ -44,7 +44,7 @@ leaderboard: {
     ]
 }
 ```
-* nextQTimer: `int`
+* nextQuestionTimer: `int`
 * playAgainSelected: `bool`
 * quitSelected: `bool`
 
@@ -76,7 +76,6 @@ lobby: {
 * globalPlayerState[ clientId: `string` ]: `playerState`
 ```
 playerState: {
-    id: `string`, 
     username: `string`, 
     isHost: `string`, 
     isReady, `string`, 

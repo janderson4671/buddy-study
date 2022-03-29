@@ -132,7 +132,7 @@ function createNewLobby(hostUsername, lobbyId, hostClientId) {
                 hostClientId: hostClientId
             }
         }); 
-        console.log(`CREATING NEW THREAD WITH ID ${threadId}`); 
+        console.log(`\nCREATING NEW THREAD WITH ID ${threadId}`); 
         worker.on("error", (error) => {
             console.log(`WORKER EXITED DUE TO AN ERROR ${error}`); 
             console.log(`# of Active Lobbies: ${Object.keys(activeLobbies).length}`); 

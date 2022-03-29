@@ -66,7 +66,7 @@ realtime.connection.once("connected", () => {
     globalChannel.presence.subscribe("enter", (player) => {
         console.log(`New Game Lobby Host: ${player.data.username}`); 
         activeGameRooms[lobbyId] = {
-            host: req.body.username
+            host: player.data.username
         } 
         createNewLobby(
             player.data.username, 
@@ -95,21 +95,21 @@ app.get("/api/game/auth", async (req, res) => {
 // Maybe it shouldn't 
 app.get("/api/game/newlobby", async (req, res) => {
     try {
-        if ((req.body.username == null) || (req.body.username == "") ||
-                (req.body.studysetID == null) || (req.body.studysetID == "")) {
+        let username = req.query.username; 
+        if ((username == null) || (username == "")) {
             res.send({
                 success: false, 
-                message: "Must include username and study set.."
+                message: "Must include username.."
             }); 
             return; 
         }
         const user = await User.findOne({
-            username: req.body.username
+            username: username
         }); 
         if (!user) {
             res.send({
                 success: false, 
-                message: "User \"${req.body.username}\" does not exist..",  
+                message: "User \"${username}\" does not exist..",  
             }); 
             return; 
         }

@@ -6,8 +6,11 @@
 	import { goto } from "$app/navigation";
 	let startGameCode = null;
 
-    var countDown = 10;
+    var nextQuestionTimer = 10;
     var isLastQuestion = false;
+    var leaderboard = "";
+    var playAgainSelected = false;
+    var quitSelectes = false;
 
     var players = ["Player1", "Player2"];
 

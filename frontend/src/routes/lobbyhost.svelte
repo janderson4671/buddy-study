@@ -13,7 +13,9 @@
         score: 0
     }
 
-    var gameCode = 123456;
+    var lobbyId = 123456;
+    var gameStarted = false;
+    var curStudySetName = selectedStudySet.subject
 
 
 	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
@@ -22,6 +24,7 @@
 	});
 
     async function startGame() {
+        gameStarted = true;
         goto("./gameCountDown");
 	}
 

@@ -41,6 +41,14 @@ router.post("/register", async (req, res) => {
             })
             return;
         }
+        if (req.body.username.length > 10) {
+            res.send({
+                username: req.body.username, 
+                success: false, 
+                message: "Username is too long..."
+            }); 
+            return; 
+        }
         let existingUsername = await User.findOne({
             username: req.body.username
         }); 

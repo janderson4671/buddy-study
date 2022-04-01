@@ -1,7 +1,7 @@
 <script>
     import { goto } from "$app/navigation";
 
-    var countDown = 10;
+    var countDownTimer = 10;
 
     async function beginGame() {
         goto("./gameQuestion");

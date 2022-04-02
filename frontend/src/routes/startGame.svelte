@@ -1,7 +1,7 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
-	import { selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
+	import { selectedStudySet, IS_DEPLOYED, lobbyId } from "../stores/stores.js"
 	import { goto } from "$app/navigation";
 	let startGameCode = null;
 

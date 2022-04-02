@@ -3,25 +3,28 @@
 	import axios from "axios";
     import { goto } from "$app/navigation";
     
-    import { loggedInUser, selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
+    import { loggedInUser, selectedStudySet, IS_DEPLOYED, realtime,
+    lobbyChannel, hostAdminCh, lobbyId } from "../stores/stores.js"
     import { onMount } from "svelte";
-
-    var hostPlayer = {
-        username: "host",
-        isHost: true,
-        isReady: false,
-        score: 0
-    }
-
-    var lobbyId = 123456;
-    var gameStarted = false;
-    var curStudySetName = selectedStudySet.subject
-
-
+    
 	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
 		baseURL : apiURL
 	});
+
+    //on created
+    async function initializeGameVars() {
+        $realtime = await Ably.Realtime({
+            authUrl: apiURL + "/api/game/auth"
+        });
+        $lobbyChannel = $realtime.channels.get(
+            `${$lobbyId}:primary`
+        ); 
+        $hostAdminCh = $realtime.channels.get(
+            `${$lobbyId}:host`
+        );
+        
+    }
 
     async function startGame() {
         gameStarted = true;

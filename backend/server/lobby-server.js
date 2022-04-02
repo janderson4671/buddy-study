@@ -219,7 +219,6 @@ function subscribeToPlayer(playerChannel, playerId) {
             readyCount--; 
         }
         globalPlayerStates[msg.clientId].isReady = msg.data.ready; 
-        
         lobbyChannel.publish("update-readied", {
             playerId: msg.clientId, 
             isReady: msg.data.ready

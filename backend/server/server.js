@@ -112,7 +112,8 @@ app.get("/api/game/newlobby", async (req, res) => {
             }); 
             return; 
         }
-        const lobbyId = uuid.v4(); 
+        // const lobbyId = uuid.v4(); 
+        const lobbyId = createLobbyCode(); 
         res.send({
             lobbyId: lobbyId, 
             success: true
@@ -122,6 +123,16 @@ app.get("/api/game/newlobby", async (req, res) => {
         res.sendStatus(500); 
     }
 }); 
+
+function createLobbyCode() {
+    let result = ''; 
+    let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; 
+    let charsLength = chars.length; 
+    for (let i = 0; i < 6; i++) {
+        result += chars.charAt(Math.floor(Math.random() * charsLength)); 
+    }
+    return result; 
+}
 
 function createNewLobby(hostUsername, lobbyId, hostClientId) {
     if (isMainThread) {
@@ -156,9 +167,8 @@ function createNewLobby(hostUsername, lobbyId, hostClientId) {
         worker.on("exit", (code) => {
             console.log(`WORKER EXITED WITH THREAD ID ${threadId}`); 
             if (code != 0) {
-                console.log(`WORKER EXITED DUE TO AN ERROR WITH CODE ${code}`); 
+                console.log(`WORKER EXITED DUE TO AN ERROR WITH CODE ${code}\n`); 
             }
-            console.log(`# of Active Lobbies: ${Object.keys(activeLobbies).length}`); 
         }); 
     }
 }

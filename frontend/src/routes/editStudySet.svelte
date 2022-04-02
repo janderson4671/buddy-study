@@ -1,6 +1,6 @@
 <script>
     export const prerender = true;
-    import { loggedInUser, selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
+    import { loggedInUser, selectedStudySet, IS_DEPLOYED, lobbyId } from "../stores/stores.js"
     import { onMount } from "svelte";
     import axios from "axios";
     import { goto } from "$app/navigation"
@@ -48,8 +48,19 @@
         goto("./createFlashcard");
     }
 
-    const startGame = function() {
-        goto("./startGame");
+    async function startGame() {
+        
+        let res = await api.get("/api/game/newlobby" + "?username=" + $loggedInUser); 
+        if (!res.data.success) {
+            alert("Error Message: " + res.data.message); 
+        }
+        else if (res.data.lobbyId == null) {
+            alert("Error Message: " + "server error"); 
+        } 
+        else {
+            $lobbyId = res.data.lobbyId; 
+            goto("./startGame");
+        }
     }
 
 </script>

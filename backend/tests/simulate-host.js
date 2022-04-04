@@ -341,14 +341,14 @@ let simulateHost = async function simulateHost() {
     /* Player Action Functions */
     /* ----------------------- */ 
  
-    function toggleReady() {
-        data.isReady = !data.isReady;
-        if (data.myPlayerCh != null) {
-            data.myPlayerCh.publish("toggle-ready", {
-                ready: data.isReady
-            }); 
-        }
-    }
+    // function toggleReady() {
+    //     data.isReady = !data.isReady;
+    //     if (data.myPlayerCh != null) {
+    //         data.myPlayerCh.publish("toggle-ready", {
+    //             ready: data.isReady
+    //         }); 
+    //     }
+    // }
 
     function answerQuestion(indexOfPicked) {
         data.questionAnswered = true; 
@@ -417,8 +417,6 @@ let simulateHost = async function simulateHost() {
             break; 
         }
     }
-
-
     
     // Close ABLY Realtime Connection
     data.realtime.connection.close(); 

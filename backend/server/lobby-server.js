@@ -31,7 +31,7 @@ const realtime = Ably.Realtime({
 const MIN_PLAYERS_TO_START_GAME = 2;  
 const GAME_ROOM_CAPACITY = 2; 
 const START_TIMER_SEC = 5; 
-const Q_TIMER_SEC = 7; 
+const Q_TIMER_SEC = 14; 
 const LEADERBOARD_TIMER_SEC = 3; 
 const NEXT_QUESTION_TIMER_SEC = 3;   
 const SMALLEST_SET_ALLOWED = 4; 
@@ -139,14 +139,13 @@ function subscribeToHost() {
     hostAdminCh.subscribe("start-game", async () => {
         /* 
         if all players ready, 
-            gameStarted = true
-            parentPort.postMessage({
-                lobbyId, 
-                gameStarted
-            });  
-            await publishTimer("start-quiz-timer", START_TIMER_SEC); 
-            publish the first question
-        */
+        gameStarted = true
+        parentPort.postMessage({
+            lobbyId, 
+            gameStarted
+        });  
+        await publishTimer("start-quiz-timer", START_TIMER_SEC); 
+        publish the first question */
         if ((readyCount == totalPlayers) && (curStudysetID != null)) {
             curQuestionNum = 0; 
             gameStarted = true; 
@@ -157,7 +156,6 @@ function subscribeToHost() {
             await publishTimer("countdown-timer", START_TIMER_SEC); 
             runGame(); 
         }
-        
     }); 
 
     hostAdminCh.subscribe("load-studyset", async (msg) => {

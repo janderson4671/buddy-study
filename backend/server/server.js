@@ -126,7 +126,7 @@ app.get("/api/game/newlobby", async (req, res) => {
 
 function createLobbyCode() {
     let result = ''; 
-    let chars = 'ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'; 
+    let chars = 'ABCDEFGHIJKLMNPQRTUVWXYZabcdefghijkmnpqrstuvwxyz2346789'; 
     let charsLength = chars.length; 
     for (let i = 0; i < 6; i++) {
         result += chars.charAt(Math.floor(Math.random() * charsLength)); 

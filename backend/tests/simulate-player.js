@@ -27,7 +27,7 @@ let simulatePlayer = async function simulatePlayer(username) {
         myPlayerCh: null, 
         players: {}, 
         curStudySetName: null,
-        isReady: true,  
+        isReady: false,  
         gameStarted: false, 
         gameKilled: false, 
 
@@ -43,6 +43,8 @@ let simulatePlayer = async function simulatePlayer(username) {
         playerAnswer: null, 
         correctAnswer: null, 
         leaderboardTimer: null, 
+        questionAnswered: false, 
+
 
         // Leaderboard View
         isLastQuestion: false, 
@@ -117,27 +119,49 @@ let simulatePlayer = async function simulatePlayer(username) {
     data.lobbyChannel.subscribe("countdown-timer", msg => {
         data.gameStarted = true; 
         data.countdownTimer = msg.data.countDownSec; 
+        console.log(data.countdownTimer); 
     }); 
     data.lobbyChannel.subscribe("new-question", msg => {
+        data.questionAnswered = false; 
+        data.playerAnswer = null; 
+        console.log(msg.data); 
         data.qNum = msg.data.questionNumber; 
         data.qText = msg.data.questionText; 
-        data.options = msg.data.choices; 
+        data.options = msg.data.options;
+        console.log(`${data.qNum}: ${data.qText}\n`); 
+        data.options.forEach((option, index) => {
+            console.log(`${index}: ${option}`)
+        }) 
     }); 
     data.lobbyChannel.subscribe("question-timer", msg => {
         data.qTimer = msg.data.countDownSec; 
+        console.log(data.qTimer); 
     }); 
     data.lobbyChannel.subscribe("correct-answer", msg => {
         data.correctAnswer = msg.data.answerText; 
+        console.log(`Correct answer: ${data.correctAnswer}`); 
+        console.log((data.playerAnswer != null 
+                    && data.correctAnswer == data.playerAnswer) ? 
+                                                                "I was right!" : 
+                                                                `I missed this one... Submitted ${data.playerAnswer}, ${data.correctAnswer} was correct`); 
     }); 
     data.lobbyChannel.subscribe("leaderboard-timer", msg => {
         data.leaderboardTimer = msg.data.countDownSec; 
+        console.log(data.leaderboardTimer); 
     }); 
     data.lobbyChannel.subscribe("new-leaderboard", msg => {
         data.isLastQuestion = msg.data.isLastQuestion; 
         data.leaderboard = msg.data.leaderboard; 
+        data.leaderboard.forEach(entry => {
+            console.log("-------------------------"); 
+            console.log("|  " + entry.username.padEnd(13, " ") + 
+                (`${entry.score}`).padEnd(6, " ") + "  |"); 
+            console.log("-------------------------"); 
+        });
     }); 
     data.lobbyChannel.subscribe("next-question-timer", msg => {
         data.nextQuestionTimer = msg.data.countDownSec; 
+        console.log(data.nextQuestionTimer);
     }); 
     data.lobbyChannel.subscribe("kill-lobby", msg => {
         data.gameKilled = true; 
@@ -165,6 +189,7 @@ let simulatePlayer = async function simulatePlayer(username) {
     }
 
     function answerQuestion(indexOfPicked) {
+        data.questionAnswered = true; 
         data.playerAnswer = data.options[indexOfPicked]; 
         if (data.myPlayerCh != null) {
             data.myPlayerCh.publish("player-answer", {
@@ -173,7 +198,7 @@ let simulatePlayer = async function simulatePlayer(username) {
         } else {
             throw "Shouldn't be able to answer question before initializing player channel..";
         }
-    }
+    }7
 
     function displayLobbyDashboard() {
         // data.players.sort((a, b) => a.username.toLowerCase() > b.username.toLowerCase() ? 1 : -1);  
@@ -198,6 +223,12 @@ let simulatePlayer = async function simulatePlayer(username) {
             case "r": 
                 toggleReady();
                 break;  
+            default: 
+                // Answering Question
+                if (!data.questionAnswered) {
+                    console.log(`Answer submitted: ${input}`); 
+                    answerQuestion(input); 
+                }
         }
     }
     

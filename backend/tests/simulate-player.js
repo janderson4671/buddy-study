@@ -83,14 +83,123 @@ let simulatePlayer = async function simulatePlayer(username) {
             `${input}:primary`
         ); 
         if (!(await isLobbyEmpty())) {
+            data.lobbyId = input;
             break; 
         } 
     }
 
     // TODO: Add subscriptions, enter lobby channel, create myPlayerCh, etc. 
     
+    // Enter Lobby
+    data.lobbyChannel.presence.enter({
+        username: data.username, 
+        isHost: false, 
+    }); 
 
+    // Subscribe to Lobby Channels
+    data.lobbyChannel.subscribe("update-player-states", msg => {
+        data.players = msg.data; 
+        displayLobbyDashboard(); 
+    }); 
+
+    data.lobbyChannel.subscribe("update-player-states", msg => {
+        data.players = msg.data; 
+        displayLobbyDashboard(); 
+    }); 
+    data.lobbyChannel.subscribe("update-readied", msg => {
+        data.players[msg.data.playerId].isReady = msg.data.isReady; 
+        displayLobbyDashboard(); 
+    }); 
+    data.lobbyChannel.subscribe("studyset-loaded", msg => {
+        data.curStudySetName = msg.data.studysetSubject; 
+        displayLobbyDashboard(); 
+    }); 
+    data.lobbyChannel.subscribe("countdown-timer", msg => {
+        data.gameStarted = true; 
+        data.countdownTimer = msg.data.countDownSec; 
+    }); 
+    data.lobbyChannel.subscribe("new-question", msg => {
+        data.qNum = msg.data.questionNumber; 
+        data.qText = msg.data.questionText; 
+        data.options = msg.data.choices; 
+    }); 
+    data.lobbyChannel.subscribe("question-timer", msg => {
+        data.qTimer = msg.data.countDownSec; 
+    }); 
+    data.lobbyChannel.subscribe("correct-answer", msg => {
+        data.correctAnswer = msg.data.answerText; 
+    }); 
+    data.lobbyChannel.subscribe("leaderboard-timer", msg => {
+        data.leaderboardTimer = msg.data.countDownSec; 
+    }); 
+    data.lobbyChannel.subscribe("new-leaderboard", msg => {
+        data.isLastQuestion = msg.data.isLastQuestion; 
+        data.leaderboard = msg.data.leaderboard; 
+    }); 
+    data.lobbyChannel.subscribe("next-question-timer", msg => {
+        data.nextQuestionTimer = msg.data.countDownSec; 
+    }); 
+    data.lobbyChannel.subscribe("kill-lobby", msg => {
+        data.gameKilled = true; 
+    }); 
+
+    // Set Up My Player
+    data.myClientId = data.realtime.auth.clientId; 
+    data.myPlayerCh = data.realtime.channels.get(
+        `${data.lobbyId}:player-ch-${data.myClientId}`
+    ); 
+
+    /* ----------------------- */ 
+    /* Player Action Functions */
+    /* ----------------------- */  
     
+    function toggleReady() {
+        data.isReady = !data.isReady;
+        if (data.myPlayerCh != null) {
+            data.myPlayerCh.publish("toggle-ready", {
+                ready: data.isReady
+            }); 
+        } else {
+            console.log(data.myPlayerCh); 
+        }
+    }
+
+    function answerQuestion(indexOfPicked) {
+        data.playerAnswer = data.options[indexOfPicked]; 
+        if (data.myPlayerCh != null) {
+            data.myPlayerCh.publish("player-answer", {
+                answerText: data.playerAnswer
+            }); 
+        } else {
+            throw "Shouldn't be able to answer question before initializing player channel..";
+        }
+    }
+
+    function displayLobbyDashboard() {
+        // data.players.sort((a, b) => a.username.toLowerCase() > b.username.toLowerCase() ? 1 : -1);  
+        if (Object.keys(data.players).length <= 0) {
+            return; 
+        }
+        console.log(`Lobby Code: ${data.lobbyId}`); 
+        console.log(`Studyset Loaded: ${data.curStudySetName}\n`); 
+        console.log("  Players: "); 
+        console.log("-----------------------------"); 
+        for (const playerId in data.players) { 
+            console.log("|  " + data.players[playerId].username.padEnd(13, " ") + 
+                    (data.players[playerId].isHost ? "HOST" : "").padEnd(7, " ") + 
+                    (data.players[playerId].isReady ? "R" : "").padEnd(3, " ") + "  |"); 
+        }
+        console.log("-----------------------------"); 
+    }
+    
+    while (true) {
+        let input = await testUtils.pauseForUserInput("Please press ENTER to continue..."); 
+        switch (input) {
+            case "r": 
+                toggleReady();
+                break;  
+        }
+    }
     
     // Close ABLY Realtime Connection
     data.realtime.connection.close(); 

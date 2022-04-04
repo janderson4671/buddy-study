@@ -8,6 +8,11 @@ const hostClientId = workerData.hostClientId;
 const mongoose = require("mongoose"); 
 const Ably = require("ably/promises"); 
 
+mongoose.connect('mongodb://localhost:27017/buddy-study', {
+    useNewUrlParser: true, 
+    useUnifiedTopology: true
+}); 
+
 // Imported models
 const models = require("./models.js"); 
 const StudySet = models.studysetModel; 
@@ -25,7 +30,7 @@ const realtime = Ably.Realtime({
 // Constants (all are arbitrary for now)
 const MIN_PLAYERS_TO_START_GAME = 2;  
 const GAME_ROOM_CAPACITY = 2; 
-const START_TIMER_SEC = 10; 
+const START_TIMER_SEC = 5; 
 const Q_TIMER_SEC = 7; 
 const LEADERBOARD_TIMER_SEC = 3; 
 const NEXT_QUESTION_TIMER_SEC = 3;   
@@ -43,6 +48,7 @@ let hostAdminCh;
 
 let gameStarted = false; 
 let curStudysetID = null; 
+let curStudySetName = null; 
 let totalPlayers = 0;
 let readyCount = 0; 
 
@@ -88,10 +94,13 @@ function handleNewPlayer(player) {
     playerChannels[newPlayerId] = realtime.channels.get(
         `${lobbyId}:player-ch-${newPlayerId}`
     ); 
-
     subscribeToPlayer(playerChannels[newPlayerId], newPlayerId); 
     
-    globalPlayerStates[newPlayerId] = newPlayerState;  
+    globalPlayerStates[newPlayerId] = newPlayerState; 
+    lobbyChannel.publish("studyset-loaded", {
+        studysetSubject: curStudySetName, 
+        // studysetID: res.studysetID
+    });  
     lobbyChannel.publish("update-player-states", globalPlayerStates); 
 }
 
@@ -107,7 +116,7 @@ function handlePlayerLeft(player) {
         lobbyChannel.publish("kill-lobby", {}); 
         forceKillLobby(); 
     } else {
-        if (newPlayerState.isReady) {
+        if (globalPlayerStates[player.clientId].isReady) {
             readyCount--; 
         }
         delete globalPlayerStates[leavingPlayerId]; 
@@ -137,7 +146,7 @@ function subscribeToHost() {
             });  
             await publishTimer("start-quiz-timer", START_TIMER_SEC); 
             publish the first question
-        */ 
+        */
         if ((readyCount == totalPlayers) && (curStudysetID != null)) {
             curQuestionNum = 0; 
             gameStarted = true; 
@@ -146,7 +155,7 @@ function subscribeToHost() {
                 gameStarted: gameStarted
             }); 
             await publishTimer("countdown-timer", START_TIMER_SEC); 
-            
+            runGame(); 
         }
         
     }); 
@@ -164,17 +173,17 @@ function subscribeToHost() {
             - 1 correct option
         push all questions to new question[] list
         */ 
-        const res = await getFlashcardsOfSet(msg.data.studysetID); 
+        const res = await getFlashcardsOfSet(msg.data.studysetID);
         if (res.success) {
             let allAnswers = []; 
-            for (const card in res.flashCards) {
-                allAnswers.push(card.answer); 
-            }
-            const answersLen = answers.length; 
+            res.flashCards.forEach(card => {
+                allAnswers.push(card.answerText); 
+            }); 
+            const answersLen = allAnswers.length; 
             
             questions = []; 
             let cardNum = 0; 
-            for (const card in res.flashCards) {
+            res.flashCards.forEach(card => {
                 let options = []; 
                 for (let i = 0; i < NUM_FAKE_ANSWERS; i++) {
                     options.push(allAnswers[findFakeAnswerNum(answersLen, cardNum)]); 
@@ -186,11 +195,12 @@ function subscribeToHost() {
                     options: options, 
                 }); 
                 cardNum++; 
-            }
-
+            }); 
+            curStudySetName = res.studysetSubject; 
+            curStudysetID = res.studysetID; 
             lobbyChannel.publish("studyset-loaded", {
                 studysetSubject: res.studysetSubject, 
-                studysetID: res.studysetID
+                // studysetID: res.studysetID
             }); 
         }
     }); 
@@ -207,11 +217,11 @@ function subscribeToPlayer(playerChannel, playerId) {
             can't change score until after all answers are received
             add {clientId : answerGiven} to answers{}  */
         if (!questionClosed) {
-            playerAnswers[playerId] = (msg.data.answer 
+            playerAnswers[msg.clientId] = (msg.data.answerText 
                                         == questions[curQuestionNum].answerText)
         }
+        console.log(playerAnswers); 
     }); 
-
     playerChannel.subscribe("toggle-ready", (msg) => {
         if (msg.data.ready) {
             readyCount++; 
@@ -242,7 +252,7 @@ async function runGame() {
         lobbyChannel.publish("new-question", {
             questionNumber: curQuestionNum + 1, 
             questionText: questions[curQuestionNum].questionText, 
-            choices: questions[curQuestionNum].choices, 
+            options: questions[curQuestionNum].options, 
         }); 
         await publishTimer("question-timer", Q_TIMER_SEC); 
         questionClosed = true; 
@@ -250,8 +260,8 @@ async function runGame() {
             questionNumber: curQuestionNum + 1, 
             answerText: questions[curQuestionNum].answerText
         });
-        await Promise.all(publishTimer("leaderboard-timer", LEADERBOARD_TIMER_SEC), 
-                            calculateResults());
+        await Promise.all([publishTimer("leaderboard-timer", LEADERBOARD_TIMER_SEC), 
+                            calculateResults()]);
         const isLastQuestion = (curQuestionNum == questions.length - 1); 
         lobbyChannel.publish("new-leaderboard", {
             isLastQuestion: isLastQuestion, 
@@ -288,26 +298,6 @@ function calculateResults() {
     /*  ON THE FRONT END: (sort by greatest score then alphabetically)
         leaderboard.sort((a, b) => (a.score < b.score) ? 1 : (a.score === b.score) ? ((a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1) : -1); 
     */ 
-}
-
-function publishLeaderboard() {
-    /*  Don't need to send whole player states. Have them sort the list 
-        on the front end. leaderboard object: 
-        leaderboard: {
-            isLastQuestion: bool, 
-            playerScores: [
-                {
-                    username: string
-                    score: int
-                }
-            ]
-        } 
-    */ 
-    
-    // Check is last question
-    if (curQuestionNum == questions.length - 1) {
-        
-    }
 }
 
 async function getFlashcardsOfSet(studysetID) {

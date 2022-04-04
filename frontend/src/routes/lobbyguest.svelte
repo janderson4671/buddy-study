@@ -50,8 +50,8 @@
         settings
     </div>
    
-    <div class="setting">
-        <img class ="logout_img"src="./reading.png" alt="dashboard.png" width="7%">
+    <div class="dashboard">
+        <img class ="dashboard_img"src="./reading.png" alt="dashboard.png" width="7%">
         dashboard
     </div>
 
@@ -105,13 +105,13 @@
         justify-content: center;
     }
 
-    .setting {
+    .setting, .dashboard {
         font-family: 'Fira Sans Condensed', sans-serif;
         font-size: 0.9vw;
         text-align: center;
     }
 
-    .setting_img {
+    .setting_img, .dashboard_img{
         display: block;
         margin-left: auto;
         margin-right: auto;

@@ -52,9 +52,9 @@
 
     {#if !isLastQuestion}
     <div class="results_header">
-            <h1>Results<h1>
-            <h2>Player1:   3</h2>
-            <h2>Player2:   4</h2>
+            <h1 class="results_header_style">Results</h1>
+            <p1>Player1:   3</p1><br>
+            <p1>Player2:   4</p1><br>
             Next question in {countDown}
         </div>
 
@@ -86,14 +86,17 @@
         <button>Exit</button>
     {/if}
 
-    <div class=exit_button on:click={exit}>
-        Exit
-    </div>
+    <div class = exit_button on:click={exit}>Exit</div>
 
 <style>
 
     .results_header {
         text-align: center;
+    }
+
+    .results_header_style {
+        font-family: 'Fira Sans Condensed', sans-serif;
+        font-size: 2.5vw;
     }
 
     .top_menu {
@@ -148,3 +151,7 @@
     }
 
 </style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Sans+Condensed&display=swap" rel="stylesheet">

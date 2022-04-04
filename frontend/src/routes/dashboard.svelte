@@ -42,7 +42,7 @@
         goto("/createStudySet");
     }
     const joinGame = function() {
-        goto("/joinGame");
+        goto("/Game");
     }
 
 </script>

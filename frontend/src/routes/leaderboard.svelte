@@ -55,7 +55,7 @@
             <h1 class="results_header_style">Results</h1>
             <p1>Player1:   3</p1><br>
             <p1>Player2:   4</p1><br>
-            Next question in {countDown}
+            Next question in {nextQuestionTimer}
         </div>
 
         

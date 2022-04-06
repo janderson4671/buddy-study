@@ -44,7 +44,7 @@
     </div>
 
     <div class="count_down">
-        <h1>{countDown}<h1>
+        <h1>{countDownTimer}<h1>
     </div>
 
     <div class="next_button">

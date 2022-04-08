@@ -41,7 +41,8 @@
         // Need information about selected study set
         goto("/createStudySet");
     }
-    const joinGame = function() {
+    const joinAGame = function() {
+        console.log("joining");
         goto("/Game");
     }
 
@@ -72,7 +73,7 @@
     </div>
 </div>
 
-<div class="join_button" on:click={joinGame}>
+<div class="join_button" on:click={joinAGame}>
     Join Game
 </div>
 
@@ -147,7 +148,7 @@
 		font-weight: normal;
 		font-size: 1.2vw;
 		text-align: center;
-		background:#79C8F4;
+		background: #79C8F4;
 		color: black;
 		width: 10vw;
 		height: 3vw;

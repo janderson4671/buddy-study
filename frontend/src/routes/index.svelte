@@ -8,7 +8,8 @@
 	let password_input = null;
 
 	// CHANGE THIS IF WE ARE DEPLOYING!!!
-	// $IS_DEPLOYED = true;
+	//$IS_DEPLOYED = true;
+	$IS_DEPLOYED = false;
 
 	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({

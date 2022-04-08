@@ -2,40 +2,11 @@
 
     import { onMount } from "svelte";
 
-    export let data = {
-		/* --- Host Base Variables --- */ 
-        hostAdminCh: null, 
-        lobbyReady: false, 
-        chosenStudySet: null, 
-
-        /* --- Normal Player Base Variables --- */ 
-        realtime: null, 
-        username: "host123", 
-        myClientId: null, 
-        globalChannelChName: "main-game-thread", 
-        globalChannel: null, 
-        lobbyId: null, 
-        lobbyChannel: null, 
-        myPlayerCh: null, 
-        players: {}, 
-        curStudySetName: null,
-        isReady: true,  
-        gameStarted: false, 
-        gameKilled: false, 
-
-        /* --- Component Flags --- */
-        isGuestJoin: true,
-        isCountdown: false,
-        isLobby: false,
-        isLeaderboard: false,
-        isQuestion: false,
-        isHost: false,
-        isSelectStudySet: false
-    }
+    export let data;
 
 
     onMount(async () => {
-        initializeGameVars();
+        
     });
     
     
@@ -57,6 +28,11 @@
         gameStarted = true;
         
 	}
+
+    async function readyUp() {
+        data.isReady = true;
+        alert("Ready to play!");
+    }
 
     async function editStudySet() {
         
@@ -97,16 +73,22 @@
 
 
 
-<!--Need to put this button inside of each study sets-->
-<div class="buttons">
-    <div class="startgame_button">
-        <button on:click={startGame}>Start game</button>
-    </div>
+{#if data.isHost}
+    <div class="buttons">
+        <div class="startgame_button">
+            <button on:click={startGame}>Start game</button>
+        </div>
 
-    <div class="editStudySet_button">
-        <button on:click={editStudySet}>Change Study Set</button>
+        <div class="editStudySet_button">
+            <button on:click={editStudySet}>Change Study Set</button>
+        </div>
     </div>
-</div>
+{:else}
+    <div class="startgame_button">
+            <button on:click={readyUp}>Ready</button>
+    </div>
+{/if}
+
 
 <style>
 

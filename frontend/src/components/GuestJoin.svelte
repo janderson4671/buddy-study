@@ -1,40 +1,15 @@
 <script>
 
-	export let data = {
-		/* --- Host Base Variables --- */ 
-        hostAdminCh: null, 
-        lobbyReady: false, 
-        chosenStudySet: null, 
+	export let data;
 
-        /* --- Normal Player Base Variables --- */ 
-        realtime: null, 
-        username: "host123", 
-        myClientId: null, 
-        globalChannelChName: "main-game-thread", 
-        globalChannel: null, 
-        lobbyId: null, 
-        lobbyChannel: null, 
-        myPlayerCh: null, 
-        players: {}, 
-        curStudySetName: null,
-        isReady: true,  
-        gameStarted: false, 
-        gameKilled: false, 
+	import { onMount } from "svelte";
 
-        /* --- Component Flags --- */
-        isGuestJoin: true,
-        isCountdown: false,
-        isLobby: false,
-        isLeaderboard: false,
-        isQuestion: false,
-        isHost: false,
-        isSelectStudySet: false
-    }
 
     let joinGameCode = "";
 	
     async function joinGame() {
-		
+		data.isGuestJoin = false;
+		data.isLobby = true;
     }
     async function cancelJoinGame() {
 		
@@ -52,6 +27,7 @@
 
     </div>
 
+	
     <div class="buttons">
         <div class="save_button">
             <button on:click={joinGame}>join</button>
@@ -61,6 +37,7 @@
             <button on:click={cancelJoinGame}>cancel</button>
         </div>
     </div>
+
 </div>
 
 

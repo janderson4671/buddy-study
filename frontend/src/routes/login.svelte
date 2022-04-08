@@ -2,14 +2,12 @@
 	export const prerender = true;
 
 	import axios from "axios";
-	import { IS_DEPLOYED } from "../stores/stores";
 	let username = "";
 	let password = "";
 	let email = "";
 
-	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
-		baseURL : apiURL
+		baseURL : "http://localhost:3000"
 	});
 
 	async function loginUser() {
@@ -83,8 +81,8 @@
 		font-size: 34px;
 		line-height: 41px;
 		text-align: center;
-		background: #79c8f4;
-		color: #79c8f4;
+		background: 79c8f4;
+		color: #000000;
 
 
 		

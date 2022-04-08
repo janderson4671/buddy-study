@@ -31,7 +31,7 @@ const realtime = Ably.Realtime({
 const MIN_PLAYERS_TO_START_GAME = 2;  
 const GAME_ROOM_CAPACITY = 2; 
 const START_TIMER_SEC = 5; 
-const Q_TIMER_SEC = 14; 
+const Q_TIMER_SEC = 3; 
 const LEADERBOARD_TIMER_SEC = 3; 
 const NEXT_QUESTION_TIMER_SEC = 3;   
 const SMALLEST_SET_ALLOWED = 4; 
@@ -146,7 +146,15 @@ function subscribeToHost() {
         });  
         await publishTimer("start-quiz-timer", START_TIMER_SEC); 
         publish the first question */
+        // console.log(`\nReady Count: ${readyCount}\n totalPlayers: ${totalPlayers}\n curStudySetID: ${curStudysetID}`); 
         if ((readyCount == totalPlayers) && (curStudysetID != null)) {
+            readyCount = 1;
+            for (const playerId in globalPlayerStates) {
+                if (!globalPlayerStates[playerId].isHost) {
+                    globalPlayerStates[playerId].isReady = false;  
+                } 
+            }
+            lobbyChannel.publish("update-player-states", globalPlayerStates); 
             curQuestionNum = 0; 
             gameStarted = true; 
             parentPort.postMessage({
@@ -218,7 +226,6 @@ function subscribeToPlayer(playerChannel, playerId) {
             playerAnswers[msg.clientId] = (msg.data.answerText 
                                         == questions[curQuestionNum].answerText)
         }
-        console.log(playerAnswers); 
     }); 
     playerChannel.subscribe("toggle-ready", (msg) => {
         if (msg.data.ready) {

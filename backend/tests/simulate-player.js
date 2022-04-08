@@ -101,13 +101,9 @@ let simulatePlayer = async function simulatePlayer(username) {
     // Subscribe to Lobby Channels
     data.lobbyChannel.subscribe("update-player-states", msg => {
         data.players = msg.data; 
+        data.isReady = data.players[data.myClientId].isReady; 
         displayLobbyDashboard(); 
-    }); 
-
-    data.lobbyChannel.subscribe("update-player-states", msg => {
-        data.players = msg.data; 
-        displayLobbyDashboard(); 
-    }); 
+    });
     data.lobbyChannel.subscribe("update-readied", msg => {
         data.players[msg.data.playerId].isReady = msg.data.isReady; 
         displayLobbyDashboard(); 
@@ -131,7 +127,7 @@ let simulatePlayer = async function simulatePlayer(username) {
         console.log(`${data.qNum}: ${data.qText}\n`); 
         data.options.forEach((option, index) => {
             console.log(`${index}: ${option}`)
-        }) 
+        });
     }); 
     data.lobbyChannel.subscribe("question-timer", msg => {
         data.qTimer = msg.data.countDownSec; 
@@ -152,12 +148,19 @@ let simulatePlayer = async function simulatePlayer(username) {
     data.lobbyChannel.subscribe("new-leaderboard", msg => {
         data.isLastQuestion = msg.data.isLastQuestion; 
         data.leaderboard = msg.data.leaderboard; 
+        data.leaderboard.sort((a, b) => (a.score < b.score) ? 1 : (a.score === b.score) ? ((a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1) : -1); 
         data.leaderboard.forEach(entry => {
             console.log("-------------------------"); 
             console.log("|  " + entry.username.padEnd(13, " ") + 
                 (`${entry.score}`).padEnd(6, " ") + "  |"); 
             console.log("-------------------------"); 
         });
+        if (data.isLastQuestion) {
+            data.gameStarted = false; 
+            console.log("GAME IS OVER"); 
+            console.log("Play again? (cmd: 'again')"); 
+            console.log("Exit lobby? (cmd: 'exit'"); 
+        }
     }); 
     data.lobbyChannel.subscribe("next-question-timer", msg => {
         data.nextQuestionTimer = msg.data.countDownSec; 
@@ -198,7 +201,7 @@ let simulatePlayer = async function simulatePlayer(username) {
         } else {
             throw "Shouldn't be able to answer question before initializing player channel..";
         }
-    }7
+    }
 
     function displayLobbyDashboard() {
         // data.players.sort((a, b) => a.username.toLowerCase() > b.username.toLowerCase() ? 1 : -1);  
@@ -218,11 +221,24 @@ let simulatePlayer = async function simulatePlayer(username) {
     }
     
     while (true) {
-        let input = await testUtils.pauseForUserInput("Please press ENTER to continue..."); 
+        let input = await testUtils.pauseForUserInput("Please enter your command..."); 
         switch (input) {
             case "r": 
                 toggleReady();
                 break;  
+            case "again": 
+                if (data.isLastQuestion) {
+                    displayLobbyDashboard(); 
+                }
+                break; 
+            case "exit": 
+                if (data.isLastQuestion) {
+                    data.myPlayerCh.detach()
+                    data.lobbyChannel.detach(); 
+                    console.log("Lobby Exited"); 
+                    quit = true; 
+                }
+                break; 
             default: 
                 // Answering Question
                 if (!data.questionAnswered) {
@@ -237,7 +253,7 @@ let simulatePlayer = async function simulatePlayer(username) {
 }
 
 let runPlayerSimulation = async function() {
-    await simulatePlayer("player1"); 
+    await simulatePlayer("player" + Math.floor(Math.random() * 500)); 
 }
 
 runPlayerSimulation(); 

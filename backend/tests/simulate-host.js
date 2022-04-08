@@ -98,6 +98,7 @@ let simulateHost = async function simulateHost() {
         qTimer: 0, 
         qText: null, 
         options: null, 
+        questionAnswered: false, 
         playerAnswer: null, 
         correctAnswer: null, 
         leaderboardTimer: null, 
@@ -106,7 +107,7 @@ let simulateHost = async function simulateHost() {
         // Leaderboard View
         isLastQuestion: false, 
         leaderboard: null, 
-        nextQTimer: 0, 
+        nextQuestionTimer: 0, 
         playAgainSelected: false, 
         quitSelected: false, 
     }
@@ -164,9 +165,9 @@ let simulateHost = async function simulateHost() {
             createFlashRequest_2.studysetID = data.chosenStudySet; 
             createFlashRequest_3.studysetID = data.chosenStudySet; 
             createFlashRequest_4.studysetID = data.chosenStudySet; 
-            createFlashRequest_5.studysetID = data.chosenStudySet; 
-            createFlashRequest_6.studysetID = data.chosenStudySet; 
-            createFlashRequest_7.studysetID = data.chosenStudySet; 
+            // createFlashRequest_5.studysetID = data.chosenStudySet; 
+            // createFlashRequest_6.studysetID = data.chosenStudySet; 
+            // createFlashRequest_7.studysetID = data.chosenStudySet; 
 
         }
     } catch (error) {
@@ -200,23 +201,23 @@ let simulateHost = async function simulateHost() {
             throw "Failed to create the host's flashcard 4"
         }
 
-        res = await api.post("/api/flashcard/create", createFlashRequest_5); 
-        if (!res.data.success) {
-            console.log("Error Message: " + res.data.message); 
-            throw "Failed to create the host's flashcard 5"
-        }
+        // res = await api.post("/api/flashcard/create", createFlashRequest_5); 
+        // if (!res.data.success) {
+        //     console.log("Error Message: " + res.data.message); 
+        //     throw "Failed to create the host's flashcard 5"
+        // }
 
-        res = await api.post("/api/flashcard/create", createFlashRequest_6); 
-        if (!res.data.success) {
-            console.log("Error Message: " + res.data.message); 
-            throw "Failed to create the host's flashcard 6"
-        }
+        // res = await api.post("/api/flashcard/create", createFlashRequest_6); 
+        // if (!res.data.success) {
+        //     console.log("Error Message: " + res.data.message); 
+        //     throw "Failed to create the host's flashcard 6"
+        // }
 
-        res = await api.post("/api/flashcard/create", createFlashRequest_7); 
-        if (!res.data.success) {
-            console.log("Error Message: " + res.data.message); 
-            throw "Failed to create the host's flashcard 7"
-        }
+        // res = await api.post("/api/flashcard/create", createFlashRequest_7); 
+        // if (!res.data.success) {
+        //     console.log("Error Message: " + res.data.message); 
+        //     throw "Failed to create the host's flashcard 7"
+        // }
     } catch (error) {
         testUtils.reportFailure(error); 
         process.exit(1); 
@@ -287,7 +288,7 @@ let simulateHost = async function simulateHost() {
             console.log(`${data.qNum}: ${data.qText}\n`); 
             data.options.forEach((option, index) => {
                 console.log(`${index}: ${option}`)
-            }) 
+            }); 
         }); 
         data.lobbyChannel.subscribe("question-timer", msg => {
             data.qTimer = msg.data.countDownSec; 
@@ -308,12 +309,19 @@ let simulateHost = async function simulateHost() {
         data.lobbyChannel.subscribe("new-leaderboard", msg => {
             data.isLastQuestion = msg.data.isLastQuestion; 
             data.leaderboard = msg.data.leaderboard; 
+            data.leaderboard.sort((a, b) => (a.score < b.score) ? 1 : (a.score === b.score) ? ((a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1) : -1); 
             data.leaderboard.forEach(entry => {
                 console.log("-------------------------"); 
                 console.log("|  " + entry.username.padEnd(13, " ") + 
                     (`${entry.score}`).padEnd(6, " ") + "  |"); 
                 console.log("-------------------------"); 
             });
+            if (data.isLastQuestion) {
+                data.gameStarted = false; 
+                console.log("GAME IS OVER"); 
+                console.log("Play again? (cmd: 'again')"); 
+                console.log("Exit lobby? (cmd: 'exit'"); 
+            }
         }); 
         data.lobbyChannel.subscribe("next-question-timer", msg => {
             data.nextQuestionTimer = msg.data.countDownSec; 
@@ -394,18 +402,37 @@ let simulateHost = async function simulateHost() {
     }
 
     while (true) {
-        let input = await testUtils.pauseForUserInput("Please press ENTER to continue..."); 
+        let input = await testUtils.pauseForUserInput("Please enter your command..."); 
         let quit = false; 
         switch (input) {
             case "q": 
                 quit = true; 
                 break; 
             case "load":
-                selectStudyset(); 
+                if (!data.gameStarted) {
+                    selectStudyset(); 
+                }
                 break;
             case "start": 
-                startGame(); 
+                if (!data.gameStarted) {
+                    startGame(); 
+                }
                 break;
+            case "r": 
+                break; 
+            case "again": 
+                if (data.isLastQuestion) {
+                    displayLobbyDashboard(); 
+                }
+                break; 
+            case "exit": 
+                if (data.isLastQuestion) {
+                    data.myPlayerCh.detach();
+                    data.lobbyChannel.detach(); 
+                    console.log("Lobby Exited");
+                    quit = true;  
+                }
+                break; 
             default: 
                 // Answering Question
                 if (!data.questionAnswered) {

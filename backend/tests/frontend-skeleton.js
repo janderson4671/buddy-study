@@ -19,6 +19,7 @@ global_view = {
     myPlayerCh: null, 
     players: {}, 
     curStudySetName: null,
+    isHost: false, 
     isReady: false,  
     gameStarted: false, 
     gameKilled: false, 
@@ -70,6 +71,7 @@ global_view.realtime = await Ably.Realtime({
 /* ON-CLICK - CREATE LOBBY */ 
 /* *********************** */ 
 // ------------------------------------------------------------------------------
+global_view.isHost = true; 
 let res = await api.get("/api/game/newlobby" + "?username=" + data.username); 
 global_view.lobbyId = res.data.lobbyId; 
 global_view.hostAdminCh = global_view.realtime.channels.get(
@@ -163,6 +165,7 @@ async function isLobbyEmpty() {
 
     return promise; 
 }
+global_view.isHost = false; 
 global_view.lobbyChannel = global_view.realtime.channels.get(
     `${input}:primary`
 ); 

@@ -149,7 +149,7 @@ global_view.globalChannel.presence.enter({
 
 
 /* *********************** */ 
-/* ON-CLICK - CREATE LOBBY */ 
+/* ON-CLICK - JOIN LOBBY */ 
 /* *********************** */
 // ------------------------------------------------------------------------------
 /* Helper Function */ 
@@ -227,7 +227,7 @@ function answerQuestion(indexOfPicked) {
     }); 
 }
 
-// Listener for "Play Again?" button (only shows on leaderboard_view.isLastQuestion)
+// Listener for "Exit to lobby?" button (only shows on leaderboard_view.isLastQuestion)
 // --> navigate back to lobby component
 
 // Listener for "Play Again?" button (only shows on leaderboard_view.isLastQuestion)
@@ -239,3 +239,6 @@ function answerQuestion(indexOfPicked) {
 
 /* ON DESTRUCT (WHEN NAVIGATING TO A DIFFERENT TAB OTHER THAN GAME) */ 
 data.realtime.connection.close(); 
+
+// onMount
+// onDestroy

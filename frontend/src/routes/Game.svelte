@@ -20,15 +20,15 @@
 		baseURL : apiURL
 	});
 
-    let data = {
-		/* --- Host Base Variables --- */ 
+    let global_view = {
+        /* --- Host Base Variables --- */ 
         hostAdminCh: null, 
         lobbyReady: false, 
         chosenStudySet: null, 
 
         /* --- Normal Player Base Variables --- */ 
         realtime: null, 
-        username: "host123", 
+        username: $loggedInUser.username, 
         myClientId: null, 
         globalChannelChName: "main-game-thread", 
         globalChannel: null, 
@@ -37,61 +37,200 @@
         myPlayerCh: null, 
         players: {}, 
         curStudySetName: null,
-        isReady: true,  
+        isHost: false, 
+        isReady: false,  
         gameStarted: false, 
         gameKilled: false, 
 
         /* --- Component Flags --- */
-        isGuestJoin: true,
+        isOnServer: false, 
         isCountdown: false,
         isLobby: false,
         isLeaderboard: false,
         isQuestion: false,
-        isHost: false,
         isSelectStudySet: false
     }
 
-        
-    
+    /* --- In-Game Variables --- */ 
 
+    let countdown_view = {
+        // Game Countdown View
+        countdownTimer: 0, 
+    }
 
+    let question_view = {
+        // Question View
+        qNum: 0, 
+        qTimer: 0, 
+        qText: null, 
+        options: null, 
+        questionAnswered: false, 
+        playerAnswer: null, 
+        correctAnswer: null, 
+        leaderboardTimer: null, 
+        questionAnswered: false, 
+    }
 
+    let leaderboard_view = {
+        // Leaderboard View
+        isLastQuestion: false, 
+        leaderboard: null, 
+        nextQuestionTimer: 0, 
+        playAgainSelected: false, 
+        quitSelected: false, 
+    }
+
+    let inputCode = ""; 
+    let realtimeInitialized = false; 
+    initializeRealtime(); 
+
+    if ($selectedStudySet == null) {
+        global_view.isOnServer = false; 
+    } else {
+        handleCreateLobby();
+    }
+
+    async function initializeRealtime() {
+        global_view.realtime = await Ably.Realtime({
+            authUrl: ($IS_DEPLOYED ? "" : "http://localhost:3000") + "/api/game/auth"
+        });
+        realtimeInitialized = true; 
+    }
+    async function handleCreateLobby() {
+        global_view.isHost = true; 
+        global_view.isReady = true; 
+        let res = await api.get("/api/game/newlobby" + "?username=" + data.username); 
+        global_view.lobbyId = res.data.lobbyId; 
+        while (!realtimeInitialized) {}
+        global_view.lobbyChannel = global_view.realtime.channels.get(
+            `${global_view.lobbyId}:primary`
+        ); 
+        global_view.hostAdminCh = global_view.realtime.channels.get(
+            `${global_view.lobbyId}:host`
+        ); 
+        // Once thread is prepared we can subscribe to the lobby
+        global_view.lobbyChannel.subscribe("thread-ready", () => {
+            // Handle Lobby Prepared
+            global_view.lobbyReady = true; 
+            global_view.globalChannel = detach(); 
+
+            // Enter Lobby
+            global_view.lobbyChannel.presence.enter({
+                username: global_view.username, 
+                isHost: true,
+            }); 
+
+            // Subscribe to Lobby Channels
+            global_view.lobbyChannel.subscribe("update-player-states", msg => {
+                global_view.players = msg.data; 
+            }); 
+            global_view.lobbyChannel.subscribe("update-readied", msg => {
+                global_view.players[msg.data.playerId].isReady= msg.data.isReady; 
+            }); 
+            global_view.lobbyChannel.subscribe("countdown-timer", msg => {
+                global_view.gameStarted = true; 
+                countdown_view.countdownTimer = msg.data.countDownSec; 
+            }); 
+            global_view.lobbyChannel.subscribe("new-question", msg => {
+                question_view.questionAnswered = false; 
+                question_view.playerAnswer = null; 
+                question_view.qNum = msg.data.questionNumber;
+                question_view.qText = msg.data.questionText; 
+                question_view.options = msg.data.options; 
+            }); 
+            global_view.lobbyChannel.subscribe("question-timer", msg => {
+                question_view.qTimer = msg.data.countDownSec; 
+            }); 
+            global_view.lobbyChannel.subscribe("correct-answer", msg => {
+                question_view.correctAnswer = msg.data.answerText; 
+            }); 
+            global_view.lobbyChannel.subscribe("leaderboard-timer", msg => {
+                leaderboard_view.leaderboardTimer = msg.data.countDownSec; 
+            }); 
+            global_view.lobbyChannel.subscribe("new-leaderboard", msg => {
+                leaderboard_view.isLastQuestion = msg.data.isLastQuestion; 
+                leaderboard_view.leaderboard = msg.data.leaderboard; 
+                leaderboard_view.leaderboard.sort((a, b) => (a.score < b.score) ? 1 : (a.score === b.score) ? ((a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1) : -1); 
+                if (leaderboard_view.isLastQuestion) {
+                    global_view.gameStarted = false; 
+                }
+            }); 
+            global_view.lobbyChannel.subscribe("next-question-timer", msg => {
+                leaderboard_view.nextQuestionTimer = msg.data.countDownSec; 
+            }); 
+            global_view.lobbyChannel.subscribe("kill-lobby", msg => {
+                global_view.gameKilled = true; 
+            }); 
+
+            // Set up my player
+            global_view.myClientId = global_view.realtime.auth.clientId; 
+            global_view.myPlayerCh = global_view.realtime.channels.get(
+                `${global_view.lobbyId}:player-ch-${global_view.myClientId}`
+            )
+            
+            if (global_view.chosenStudySet != null) {
+                global_view.hostAdminCh.publish("load-studyset", {
+                    studysetID: global_view.chosenStudySet 
+                }); 
+            }
+        }); 
+        // Enter Main Thread
+        global_view.globalChannel = global_view.realtime.channels.get(global_view.globalChannelChName); 
+        global_view.globalChannel.presence.enter({
+            username: data.username, 
+            lobbyId: data.lobbyId
+        }); 
+
+        global_view.isLobby = true; 
+    }
+
+    async function isLobbyEmpty() { 
+        let promise = await new Promise((resolve, reject) => {
+            global_view.lobbyChannel.presence.get((err, players) => {
+                resolve(err || players.length < 1); 
+            }); 
+        })
+        .catch(err => {throw err}); 
+
+        return promise; 
+    }
+
+    async function handleJoinGame() {
+        global_view.isHost = false; 
+        global_view.lobbyChannel = global_view.realtime.channels.get(
+            `${inputCode}:primary`
+        ); 
+        if (!(await isLobbyEmpty())) {
+            global_view.lobbyId = inputCode; // The variable input here is whatever code was entered
+            global_view.isLobby = true; 
+        } else {
+            global_view.lobbyId = null; 
+            global_view.lobbyChannel = null; 
+        }
+    }
 </script>
 
-
-
 <p>Content</p>
-
-{#if data.isHost}
- //show host of lobby
-    {#if data.isCountdown}
-       <Countdown bind:data></Countdown>
-    {:else if data.isLeaderboard}
-        <Leaderboard  bind:data></Leaderboard>
-    {:else if data.isQuestion}
-        <Question bind:data></Question>
-    {:else if data.isLobby}
-        <Lobby bind:data></Lobby>
-    {:else if data.isSelectStudySet}
-        <SelectStudySet bind:data></SelectStudySet>
+{#if global_view.isOnServer}
+    {#if global_view.isHost}
+        {#if global_view.isLobby}
+            <Lobby bind:global_view></Lobby>
+        {:else if global_view.isCountdown}
+            <Countdown bind:global_view bind:countdown_view></Countdown>
+        {:else if global_view.isLeaderboard}
+            <Leaderboard  bind:global_view bind:leaderboard_view></Leaderboard>
+        {:else if global_view.isQuestion}
+            <Question bind:global_view bind:question_view></Question>
+        {:else if global_view.isSelectStudySet}
+            <SelectStudySet bind:global_view></SelectStudySet>
+        {/if}
     {/if}
-
 {:else}
-    {#if data.isGuestJoin}
-        <GuestJoin bind:data></GuestJoin>
-    {:else if data.isCountdown}
-        <Countdown bind:data></Countdown>
-    {:else if data.isLeaderboard}
-        <Leaderboard bind:data></Leaderboard>
-    {:else if data.isQuestion}
-        <Question bind:data></Question>
-    {:else if data.isLobby}
-        <Lobby bind:data></Lobby>
-    {:else if data.isSelectStudySet}
-        <SelectStudySet bind:data></SelectStudySet>
+    {#if {realtimeInitialized}}
+        <p>JOIN GAME</p>
+        <input bind:value={inputCode}/>
+        <button on:click={handleJoinGame}>Join</button>
+    {:else}
+        <p>Realtime isn't initializing...</p>
     {/if}
-    
 {/if}
-
-
-<p>End Content</p>

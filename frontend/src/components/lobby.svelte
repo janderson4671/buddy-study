@@ -2,7 +2,7 @@
 
     import { onMount } from "svelte";
 
-    export let data;
+    export let global_view;
 
 
     onMount(async () => {
@@ -58,7 +58,7 @@
 </div> -->
 
 <div class="buddyCode">
-    tempBuddy Code: sdf468w!
+    tempBuddy Code: {global_view.lobbyId}
 
     <p>Player1</p>
     <p>Player2</p>

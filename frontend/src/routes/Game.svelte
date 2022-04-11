@@ -114,59 +114,7 @@
             global_view.lobbyReady = true; 
             global_view.globalChannel = detach(); 
 
-            // Enter Lobby
-            global_view.lobbyChannel.presence.enter({
-                username: global_view.username, 
-                isHost: true,
-            }); 
-
-            // Subscribe to Lobby Channels
-            global_view.lobbyChannel.subscribe("update-player-states", msg => {
-                global_view.players = msg.data; 
-            }); 
-            global_view.lobbyChannel.subscribe("update-readied", msg => {
-                global_view.players[msg.data.playerId].isReady= msg.data.isReady; 
-            }); 
-            global_view.lobbyChannel.subscribe("countdown-timer", msg => {
-                global_view.gameStarted = true; 
-                countdown_view.countdownTimer = msg.data.countDownSec; 
-            }); 
-            global_view.lobbyChannel.subscribe("new-question", msg => {
-                question_view.questionAnswered = false; 
-                question_view.playerAnswer = null; 
-                question_view.qNum = msg.data.questionNumber;
-                question_view.qText = msg.data.questionText; 
-                question_view.options = msg.data.options; 
-            }); 
-            global_view.lobbyChannel.subscribe("question-timer", msg => {
-                question_view.qTimer = msg.data.countDownSec; 
-            }); 
-            global_view.lobbyChannel.subscribe("correct-answer", msg => {
-                question_view.correctAnswer = msg.data.answerText; 
-            }); 
-            global_view.lobbyChannel.subscribe("leaderboard-timer", msg => {
-                leaderboard_view.leaderboardTimer = msg.data.countDownSec; 
-            }); 
-            global_view.lobbyChannel.subscribe("new-leaderboard", msg => {
-                leaderboard_view.isLastQuestion = msg.data.isLastQuestion; 
-                leaderboard_view.leaderboard = msg.data.leaderboard; 
-                leaderboard_view.leaderboard.sort((a, b) => (a.score < b.score) ? 1 : (a.score === b.score) ? ((a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1) : -1); 
-                if (leaderboard_view.isLastQuestion) {
-                    global_view.gameStarted = false; 
-                }
-            }); 
-            global_view.lobbyChannel.subscribe("next-question-timer", msg => {
-                leaderboard_view.nextQuestionTimer = msg.data.countDownSec; 
-            }); 
-            global_view.lobbyChannel.subscribe("kill-lobby", msg => {
-                global_view.gameKilled = true; 
-            }); 
-
-            // Set up my player
-            global_view.myClientId = global_view.realtime.auth.clientId; 
-            global_view.myPlayerCh = global_view.realtime.channels.get(
-                `${global_view.lobbyId}:player-ch-${global_view.myClientId}`
-            )
+            subscriptions(); 
             
             if (global_view.chosenStudySet != null) {
                 global_view.hostAdminCh.publish("load-studyset", {
@@ -202,12 +150,71 @@
         ); 
         if (!(await isLobbyEmpty())) {
             global_view.lobbyId = inputCode; // The variable input here is whatever code was entered
+            subscriptions(); 
             global_view.isLobby = true; 
         } else {
             global_view.lobbyId = null; 
             global_view.lobbyChannel = null; 
         }
     }
+
+    function subscriptions() {
+        // Enter Lobby
+        global_view.lobbyChannel.presence.enter({
+            username: global_view.username, 
+            isHost: global_view.isHost,
+        }); 
+
+        // Subscribe to Lobby Channels
+        global_view.lobbyChannel.subscribe("update-player-states", msg => {
+            global_view.players = msg.data; 
+            global_view.isReady = global_view.players[global_view.myClientId].isReady; 
+        }); 
+        global_view.lobbyChannel.subscribe("update-readied", msg => {
+            global_view.players[msg.data.playerId].isReady= msg.data.isReady; 
+        }); 
+        global_view.lobbyChannel.subscribe("countdown-timer", msg => {
+            global_view.gameStarted = true; 
+            countdown_view.countdownTimer = msg.data.countDownSec; 
+        }); 
+        global_view.lobbyChannel.subscribe("new-question", msg => {
+            question_view.questionAnswered = false; 
+            question_view.playerAnswer = null; 
+            question_view.qNum = msg.data.questionNumber;
+            question_view.qText = msg.data.questionText; 
+            question_view.options = msg.data.options; 
+        }); 
+        global_view.lobbyChannel.subscribe("question-timer", msg => {
+            question_view.qTimer = msg.data.countDownSec; 
+        }); 
+        global_view.lobbyChannel.subscribe("correct-answer", msg => {
+            question_view.correctAnswer = msg.data.answerText; 
+        }); 
+        global_view.lobbyChannel.subscribe("leaderboard-timer", msg => {
+            leaderboard_view.leaderboardTimer = msg.data.countDownSec; 
+        }); 
+        global_view.lobbyChannel.subscribe("new-leaderboard", msg => {
+            leaderboard_view.isLastQuestion = msg.data.isLastQuestion; 
+            leaderboard_view.leaderboard = msg.data.leaderboard; 
+            leaderboard_view.leaderboard.sort((a, b) => (a.score < b.score) ? 1 : (a.score === b.score) ? ((a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1) : -1); 
+            if (leaderboard_view.isLastQuestion) {
+                global_view.gameStarted = false; 
+            }
+        }); 
+        global_view.lobbyChannel.subscribe("next-question-timer", msg => {
+            leaderboard_view.nextQuestionTimer = msg.data.countDownSec; 
+        }); 
+        global_view.lobbyChannel.subscribe("kill-lobby", msg => {
+            global_view.gameKilled = true; 
+        }); 
+
+        // Set up my player
+        global_view.myClientId = global_view.realtime.auth.clientId; 
+        global_view.myPlayerCh = global_view.realtime.channels.get(
+            `${global_view.lobbyId}:player-ch-${global_view.myClientId}`
+        )
+    }
+
 </script>
 
 <p>Content</p>

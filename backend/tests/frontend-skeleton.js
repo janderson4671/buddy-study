@@ -86,15 +86,66 @@ global_view.lobbyChannel.subscribe("thread-ready", () => {
     global_view.lobbyReady = true; 
     global_view.globalChannel = detach(); 
 
+    subscriptions(); 
+    
+    if (global_view.chosenStudySet != null) {
+        global_view.hostAdminCh.publish("load-studyset", {
+            studysetID: global_view.chosenStudySet 
+        }); 
+    }
+}); 
+// Enter Main Thread
+global_view.globalChannel = global_view.realtime.channels.get(global_view.globalChannelChName); 
+global_view.globalChannel.presence.enter({
+    username: data.username, 
+    lobbyId: data.lobbyId
+}); 
+// ------------------------------------------------------------------------------
+
+
+/* *********************** */ 
+/* ON-CLICK - JOIN LOBBY */ 
+/* *********************** */
+// ------------------------------------------------------------------------------
+/* Helper Function */ 
+async function isLobbyEmpty() { 
+    let promise = await new Promise((resolve, reject) => {
+        global_view.lobbyChannel.presence.get((err, players) => {
+            resolve(err || players.length < 1); 
+        }); 
+    })
+    .catch(err => {throw err}); 
+
+    return promise; 
+}
+global_view.isHost = false; 
+global_view.lobbyChannel = global_view.realtime.channels.get(
+    `${input}:primary`
+); 
+if (!(await isLobbyEmpty())) {
+    global_view.lobbyId = input; // The variable input here is whatever code was entered
+    subscriptions(); 
+} else {
+    global_view.lobbyChannel = null; 
+}
+// ------------------------------------------------------------------------------
+
+/* ********************** */ 
+/* Subscribe to Lobby!    */ 
+/* (After join or create) */ 
+/* ********************** */
+
+function subscriptions() {
     // Enter Lobby
     global_view.lobbyChannel.presence.enter({
         username: global_view.username, 
-        isHost: true,
+        isHost: global_view.isHost,
     }); 
 
     // Subscribe to Lobby Channels
     global_view.lobbyChannel.subscribe("update-player-states", msg => {
         global_view.players = msg.data; 
+        global_view.isReady = global_view.players[global_view.myClientId].isReady; 
     }); 
     global_view.lobbyChannel.subscribe("update-readied", msg => {
         global_view.players[msg.data.playerId].isReady= msg.data.isReady; 
@@ -139,51 +190,8 @@ global_view.lobbyChannel.subscribe("thread-ready", () => {
     global_view.myPlayerCh = global_view.realtime.channels.get(
         `${global_view.lobbyId}:player-ch-${global_view.myClientId}`
     )
-    
-    if (global_view.chosenStudySet != null) {
-        global_view.hostAdminCh.publish("load-studyset", {
-            studysetID: global_view.chosenStudySet 
-        }); 
-    }
-}); 
-// Enter Main Thread
-global_view.globalChannel = global_view.realtime.channels.get(global_view.globalChannelChName); 
-global_view.globalChannel.presence.enter({
-    username: data.username, 
-    lobbyId: data.lobbyId
-}); 
-// ------------------------------------------------------------------------------
-
-
-
-
-
-
-/* *********************** */ 
-/* ON-CLICK - JOIN LOBBY */ 
-/* *********************** */
-// ------------------------------------------------------------------------------
-/* Helper Function */ 
-async function isLobbyEmpty() { 
-    let promise = await new Promise((resolve, reject) => {
-        global_view.lobbyChannel.presence.get((err, players) => {
-            resolve(err || players.length < 1); 
-        }); 
-    })
-    .catch(err => {throw err}); 
-
-    return promise; 
 }
-global_view.isHost = false; 
-global_view.lobbyChannel = global_view.realtime.channels.get(
-    `${input}:primary`
-); 
-if (!(await isLobbyEmpty())) {
-    global_view.lobbyId = input; // The variable input here is whatever code was entered
-} else {
-    global_view.lobbyChannel = null; 
-}
-// ------------------------------------------------------------------------------
+
 
 /* ********** */ 
 /* LISTENERS! */ 

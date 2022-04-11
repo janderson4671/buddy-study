@@ -435,7 +435,7 @@ let simulateHost = async function simulateHost() {
                 break; 
             default: 
                 // Answering Question
-                if (!data.questionAnswered) {
+                if (!data.questionAnswered && data.gameStarted) {
                     console.log(`Answer submitted: ${input}`); 
                     answerQuestion(input); 
                 }

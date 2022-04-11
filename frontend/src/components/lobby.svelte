@@ -1,80 +1,50 @@
 <script>
-
-    import { onMount } from "svelte";
+    import { onMount } from "svelte"; 
 
     export let global_view = {}; 
 
-    onMount(async () => {
-        
-    });
-    
-    
-    const loadStudySets = async function() {
-        /*
-        $realtime = await Ably.Realtime({
-            authUrl: apiURL + "/api/game/auth"
-        });
-        $lobbyChannel = $realtime.channels.get(
-            `//${$lobbyId}:primary`
-        ); 
-        $hostAdminCh = $realtime.channels.get(
-            //`${$lobbyId}:host`
-        );
-        */
-    }
-
     async function startGame() {
-        gameStarted = true;
-        
+        if (!global_view.gameStarted) {
+            global_view.hostAdminCh.publish("start-game", {} ); 
+        }
 	}
 
     async function readyUp() {
-        data.isReady = true;
-        alert("Ready to play!");
+        global_view.isReady = !global_view.isReady; 
+        global_view.myPlayerCh.publish("toggle-ready", {
+            ready: global_view.isReady 
+        }); 
     }
 
     async function editStudySet() {
         
     }
-
-    
 </script>
-
-
-
-
-<!-- Should show the list of people in here -->
-<!-- <div class="guest_list">
-    {#each  as {}}
-        player.username 
-        {#if player.isReady}
-            Ready!
-        {/if}
-        {#if !player.isReady}
-            waiting...
-        {/if}
-    {/each}
-</div> -->
 
 <div class="buddyCode">
     tempBuddy Code: {global_view.lobbyId}
-
-    <p>Player1</p>
-    <p>Player2</p>
+    <div class="studysetTitle">
+        Study Set Subject: {global_view.curStudySetName}
+    </div>
+    <div class="guest_list">
+        {#each Object.entries(global_view.players) as [playerId, player]}
+            {player.username}
+            {#if player.isReady}
+                Ready! 
+            {:else}
+                waiting...
+            {/if}
+            {#if player.isHost}
+                HOST
+            {/if}
+            <br>
+        {/each}
+    </div>
 </div>
-
-
-<div class="studysetTitle">
-    Geography
-
-    <!--Study Set: {$selectedStudySet.subject}-->
-</div>
-
-
 
 {#if global_view.isHost}
     <div class="buttons">
-        <div class="startgame_button">
+        <div class="start-or-ready-button">
             <button on:click={startGame}>Start game</button>
         </div>
 
@@ -83,7 +53,7 @@
         </div>
     </div>
 {:else}
-    <div class="startgame_button">
+    <div class="start-or-ready-button">
             <button on:click={readyUp}>Ready</button>
     </div>
 {/if}
@@ -113,7 +83,7 @@
 		margin-bottom: 2%;
 	}
 
-    .startgame_button {
+    .start-or-ready-button {
         margin-right: 2%;
     }
 

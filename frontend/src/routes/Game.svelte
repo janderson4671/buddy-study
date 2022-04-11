@@ -37,7 +37,7 @@
         lobbyChannel: null, 
         myPlayerCh: null, 
         players: {}, 
-        curStudySetName: null,
+        curStudySetName: "",
         isHost: false, 
         isReady: false,  
         gameStarted: false, 
@@ -72,7 +72,7 @@
         questionAnswered: false, 
         playerAnswer: null, 
         correctAnswer: null, 
-        leaderboardTimer: null, 
+        leaderboardTimer: -1, 
         questionAnswered: false, 
 
         showAnswers: false, 
@@ -118,7 +118,7 @@
         global_view.lobbyChannel.subscribe("thread-ready", () => {
             // Handle Lobby Prepared
             global_view.lobbyReady = true; 
-            global_view.globalChannel = detach(); 
+            global_view.globalChannel.detach(); 
 
             subscriptions(); 
             
@@ -157,8 +157,10 @@
         if (!(await isLobbyEmpty())) {
             global_view.lobbyId = inputCode; // The variable input here is whatever code was entered
             subscriptions(); 
+            console.log("Got here..."); 
             global_view.currentView = global_view.ON_LOBBY;             
             global_view.isOnServer = true; 
+            console.log("Got here as well.."); 
         } else {
             global_view.lobbyId = null; 
             global_view.lobbyChannel = null; 
@@ -175,21 +177,31 @@
         // Subscribe to Lobby Channels
         global_view.lobbyChannel.subscribe("update-player-states", msg => {
             global_view.players = msg.data; 
-            global_view.isReady = global_view.players[global_view.myClientId].isReady; 
+            if (global_view.players[global_view.myClientId]) {
+                global_view.isReady = global_view.players[global_view.myClientId].isReady; 
+            }
         }); 
         global_view.lobbyChannel.subscribe("update-readied", msg => {
             global_view.players[msg.data.playerId].isReady= msg.data.isReady; 
         }); 
+        global_view.lobbyChannel.subscribe("studyset-loaded", msg => {
+            global_view.curStudySetName = msg.data.studysetSubject; 
+        }); 
         global_view.lobbyChannel.subscribe("countdown-timer", msg => {
             global_view.gameStarted = true; 
             countdown_view.countdownTimer = msg.data.countDownSec; 
+            if (global_view.currentView != global_view.ON_COUNTDOWN) {
+                global_view.currentView = global_view.ON_COUNTDOWN; 
+            }
         }); 
         global_view.lobbyChannel.subscribe("new-question", msg => {
             question_view.questionAnswered = false; 
             question_view.playerAnswer = null; 
+            question_view.leaderboardTimer = -1; 
             question_view.qNum = msg.data.questionNumber;
             question_view.qText = msg.data.questionText; 
             question_view.options = msg.data.options; 
+            global_view.currentView = global_view.ON_QUESTION; 
         }); 
         global_view.lobbyChannel.subscribe("question-timer", msg => {
             question_view.qTimer = msg.data.countDownSec; 
@@ -207,6 +219,7 @@
             if (leaderboard_view.isLastQuestion) {
                 global_view.gameStarted = false; 
             }
+            global_view.currentView = global_view.ON_LEADERBOARD; 
         }); 
         global_view.lobbyChannel.subscribe("next-question-timer", msg => {
             leaderboard_view.nextQuestionTimer = msg.data.countDownSec; 

@@ -2,7 +2,7 @@
 /* ALL VARIABLES */ 
 /* ************* */ 
 
-global_view = {
+let global_view = {
     /* --- Host Base Variables --- */ 
     hostAdminCh: null, 
     lobbyReady: false, 
@@ -10,7 +10,7 @@ global_view = {
 
     /* --- Normal Player Base Variables --- */ 
     realtime: null, 
-    username: null, 
+    username: $loggedInUser.username, 
     myClientId: null, 
     globalChannelChName: "main-game-thread", 
     globalChannel: null, 
@@ -23,16 +23,28 @@ global_view = {
     isReady: false,  
     gameStarted: false, 
     gameKilled: false, 
+
+    /* --- Component Flags --- */
+    isOnServer: false,
+    currentView: 0, 
+
+    /* --- Component Constants --- */ 
+    ON_ENTRY: 0, 
+    ON_LOBBY: 1, 
+    ON_COUNTDOWN: 2, 
+    ON_QUESTION: 3, 
+    ON_LEADERBOARD: 4, 
+    ON_SELECT_STUDYSET: 5,
 }
 
 /* --- In-Game Variables --- */ 
 
-countdown_view = {
+let countdown_view = {
     // Game Countdown View
     countdownTimer: 0, 
 }
 
-question_view = {
+let question_view = {
     // Question View
     qNum: 0, 
     qTimer: 0, 
@@ -43,6 +55,8 @@ question_view = {
     correctAnswer: null, 
     leaderboardTimer: null, 
     questionAnswered: false, 
+
+    showAnswers: false, 
 }
 
 leaderboard_view = {

@@ -1,7 +1,7 @@
 <script>
 	export const prerender = true;
 	import axios from "axios";
-	import { IS_DEPLOYED } from "../stores/stores"
+	import { IS_DEPLOYED } from "../stores/stores";
 
 	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
@@ -42,16 +42,16 @@
 	<div class="flashcard">
 		<div class="flashcard_box">
 			<div class="flashcard_question"> 
-				What is the capital of Romania?
+				Bucharest
 			</div>
 		</div>
 	</div>
 	
-	<div class="answer_button">
-		<a href="/answerSideExample">
-			Answer
-		</a>
-	</div>
+		<div class="question_button">
+        <a href="/studySet">
+			Question
+        </a>
+		</div>
 	
 
 	<div class="game_button">
@@ -156,7 +156,7 @@
 		color: #FFFFFF;
 	}
 
-	.answer_button {
+	.question_button {
 		border-radius: 30px;
 		width: 82px;
 		height: 45px;
@@ -171,9 +171,9 @@
 		margin: auto;
 	}
 
-	.answer_button a {
-		color: black;
-	}
+    .question_button a {
+        color: black;
+    }
 
 	.game_button {
 		border-radius: 30px;

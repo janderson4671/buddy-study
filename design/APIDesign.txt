@@ -99,8 +99,11 @@ Managing FlashCards:
 
 "api/flashcard/delete" -> delete an existing flashcard (POST)
     request: {
+        /*
         studysetID : string,    (NOT NULL)
         questionNum : int       (NOT NULL)
+        */ 
+        flashcardID : string    (NOT NULL) 
     }
     response: {
         success : bool,         (NOT NULL)
@@ -109,13 +112,19 @@ Managing FlashCards:
 
 "api/flashcard/update" -> update an existing flashcard (POST)
     request: {
+        flashcardID : string,   (NOT NULL)
         studysetID : string,    (NOT NULL)
-        questionID : string,      (NOT NULL)
         questionText : string,  (NOT NULL)
         answerText : string     (NOT NULL)
     }
     response: {
         success : bool,
         message : string
-    } 
+    }
 
+"api/flashcard/allcards/:studysetID" -> retrieve all flashcards associated with a studyset (GET)
+    response: {
+        success : bool,
+        message : string,
+        list<Flashcard> : list of flashcards
+    }

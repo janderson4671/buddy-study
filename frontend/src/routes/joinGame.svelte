@@ -3,39 +3,33 @@
 	import axios from "axios";
 	import { selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
 	import { goto } from "$app/navigation";
-	let question_input = null;
-    let answer_input = null;
+	let joinGameCode = null;
+
+	var isReady = false;
+
 	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
 		baseURL : apiURL
 	});
-    async function saveFlashcard() {
+    async function joinGame() {
 		console.log("check");
-		try {
-			let flashcardRequest = {
-				studysetID: $selectedStudySet,
-				questionText: question_input,
-				answerText: answer_input
-			};
-			var response = await api.post("/api/flashcard/create", flashcardRequest);
-			console.log(response.data.success);
-			if (response.data.success) {
-				alert("just added the flash card");
-				goto("/editStudySet");
-			}
-			else {
-				alert("failed adding a flash card" + response.data.message);
-			}
-			
-		} catch (error) {
-			console.log(error);
-			alert("failed!");
-		}
+		// this needs to be changed to validate the code and retrieve the game
+		goto("./lobbyguest");
     }
-    async function cancelFlashcard() {
-
-		 goto("/editStudySet");
+    async function cancelJoinGame() {
+		goto("./dashboard");
 	}
+
+    const gotoLogin = function() {
+        // Remove global user
+        // $loggedInUser = "";
+
+        goto("/");
+    }
+    const gotoSettings = function() {
+        goto("/setting")
+    }
+
 </script>
 
 
@@ -46,28 +40,35 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<p class ="title">New Flash Card</p>
+<div class="top_menu">
+    
+	<div class="setting" on:click={gotoSettings}>
+        <img class ="setting_img"src="./settings.png" alt="setting_png" width="7%">
+        setting
+    </div>
+   
+
+    <div class="logout" on:click={gotoLogin}>
+        <img class ="logout_img"src="./logout.png" alt="logout_png" width="7%">
+        logout
+    </div>
+</div>
+
+<p class ="title">Join The Game!</p>
 
 <div class="user_input">
-	<p class ="qna">Question Side</p>
-	<input bind:value={question_input}>
-	<!--
-	<textarea bind:value={question_input} class="textbox" name="question_input" rows="9" cols="60"></textarea>
-    -->
-	<p class ="qna">Answer Side</p>
-	<input bind:value={answer_input}>
-	<!--
-	<textarea  bind:value={answer_input} class="textbox" name="answer_input" rows="9" cols="60"></textarea>
-	-->
+	<p class ="enterBuddyCode">Enter the Buddy Code</p>
+	<input bind:value={joinGameCode}>
+
 </div>
 
 <div class="buttons">
 	<div class="save_button">
-		<button on:click={saveFlashcard}>save</button>
+		<button on:click={joinGame}>join</button>
 	</div>
 
 	<div class="cancel_button">
-		<button on:click={cancelFlashcard}>cancel</button>
+		<button on:click={cancelJoinGame}>cancel</button>
 	</div>
 </div>
 
@@ -88,14 +89,6 @@
 		font-family: 'Fira Sans Condensed', sans-serif;
 		font-size: 1.25vw;
 		margin: 0;
-	}
-
-	.textbox {
-		font-family: 'Fira Sans Condensed', sans-serif;
-		background-color: #ECE8E8;
-		outline: none;
-		border: none;
-		box-shadow: 2px 3px gray;
 	}
 
 	.buttons{
@@ -123,6 +116,38 @@
 		border: none;
 		box-shadow: 2px 3px gray;
 	}
+
+    .top_menu {
+        display: flex;
+        margin-top: 1.5%;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .setting {
+        font-family: 'Fira Sans Condensed', sans-serif;
+        font-size: 0.9vw;
+        text-align: center;
+    }
+
+    .setting_img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        
+    }
+
+    .logout {
+        font-family: 'Fira Sans Condensed', sans-serif;
+        font-size: 0.9vw;
+        text-align: center;
+    }
+
+    .logout_img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
 
 	
 

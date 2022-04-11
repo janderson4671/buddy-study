@@ -1,32 +1,35 @@
 <script>
     export const prerender = true;
-	import axios from "axios";
-    import { goto } from "$app/navigation";
-    import { loggedInUser, IS_DEPLOYED } from "../stores/stores.js";
+    import { loggedInUser, selectedStudySet, IS_DEPLOYED, lobbyId } from "../stores/stores.js"
     import { onMount } from "svelte";
-    import StudySetView from "../components/StudySetView.svelte";
-
-    let userStudySets = [];
+    import axios from "axios";
+    import { goto } from "$app/navigation"
+    import FlashCardView from "../components/FlashCardView.svelte";
 
 	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
 		baseURL : apiURL
 	});
 
-    onMount(async () => {
-        loadStudySets();
-    });
+    let flashcards = []
 
-    const loadStudySets = async function() {
-        let response = await api.get("/api/studyset/allsets/" + $loggedInUser);
-        if (!response.data.success) {
-            alert(response.data.message)
-        } else {
-            if (response.data.studysets) {
-                userStudySets = response.data.studysets;
+    onMount(async () => {
+        try {
+            let response = await api.get("/api/flashcard/allcards/" + $selectedStudySet);
+            if (!response.data.success) {
+                alert(response.data.message);
             }
+            else {
+                console.log(response.data.flashCards);
+                if (response.data.flashCards) {
+                    flashcards = response.data.flashCards;
+                }
+            }
+        } catch(error) {
+            console.log(error);
+            alert("Something went wrong...");
         }
-    }
+    });
 
     const gotoLogin = function() {
         // Remove global user
@@ -37,23 +40,24 @@
     const gotoSettings = function() {
         goto("/setting");
     }
-    const gotoCreateStudySet = function() {
-        // Need information about selected study set
-        goto("/createStudySet");
+    const gotoDashboard = function() {
+        goto("/dashboard");
     }
-    const joinAGame = function() {
-        console.log("joining");
-        goto("/Game");
+
+    const gotoCreateFlashcard = function() {
+        goto("./createFlashcard");
+    }
+
+    async function startGame() {
+        if (flashcards.length >= 4) {
+            goto("/Game");
+        } else {
+            alert("Study set needs to have at least 4 flashcards to play a game!"); 
+        }
+        
     }
 
 </script>
-
-
-<svelte:head>
-	<title>Buddy Study</title>
-</svelte:head>
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <div class="top_menu">
     
@@ -62,7 +66,7 @@
         settings
     </div>
    
-    <div class="setting">
+    <div class="setting" on:click={gotoDashboard}>
         <img class ="logout_img"src="./reading.png" alt="dashboard.png" width="7%">
         dashboard
     </div>
@@ -73,21 +77,20 @@
     </div>
 </div>
 
-<div class="join_button" on:click={joinAGame}>
-    Join Game
+<div class="flashcard">
+    <div class="add_flashcard" on:click={gotoCreateFlashcard}>
+        <img class ="add_img"src="./plus.png" alt="add_png" width="1.8%"> Add a Flashcard
+    </div>
 </div>
 
-<div class="study_set">
-    My Study Sets
-        <div class="add_study_set" on:click={gotoCreateStudySet}>
-            <img class ="add_img"src="./plus.png" alt="add_png" width="1.8%"> Add a Study Set
-        </div>
-</div>
-
-<div class="study_set_list">
-    {#each userStudySets as { subject, studysetID }}
-        <StudySetView subject={subject} id={studysetID}/>
+<div class="flashcard_list">
+    {#each flashcards as { questionText, answerText }}
+        <FlashCardView question={questionText} answer={answerText}/>
     {/each}
+</div>
+
+<div class="start_button" on:click={startGame}>
+    Start Game
 </div>
 
 <style>
@@ -123,24 +126,24 @@
         margin-right: auto;
     }
 
-    .study_set {
+    .flashcard {
         margin-top: 5%;
         font-family: 'Archivo Black', sans-serif;
 		text-align: center;
 		font-size: 3vw;
     }
 
-    .add_study_set {
+    .add_flashcard {
         margin-top: 3%;
         font-size: 2vw;
     }
     
-    .study_set_list {
+    .flashcard_list {
         display: flex;
         flex-direction: column;
     }
 
-    .join_button {
+    .start_button {
         margin-top: 3%;
         border-radius: 30px;
 		font-family: 'Fira Sans Condensed', sans-serif;
@@ -148,7 +151,7 @@
 		font-weight: normal;
 		font-size: 1.2vw;
 		text-align: center;
-		background: #79C8F4;
+		background:#79C8F4;
 		color: black;
 		width: 10vw;
 		height: 3vw;

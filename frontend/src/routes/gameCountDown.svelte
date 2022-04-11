@@ -1,13 +1,12 @@
 <script>
-    export const prerender = true;
-	import axios from "axios";
     import { goto } from "$app/navigation";
-    import { loggedInUser, IS_DEPLOYED } from "../stores/stores.js";
+    import { loggedInUser, selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
 
-    let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
-	const api = axios.create({
-		baseURL : apiURL
-	});
+    var countDownTimer = 10;
+
+    async function beginGame() {
+        goto("./gameQuestion");
+    }
 
     const gotoLogin = function() {
         // Remove global user
@@ -18,17 +17,10 @@
     const gotoSettings = function() {
         goto("/setting");
     }
-    const gotoDashboard = function() {
-        goto("/dashboard");
-    }
+
 
 </script>
 
-<svelte:head>
-	<title>Buddy Study</title>
-</svelte:head>
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <div class="top_menu">
     
@@ -37,28 +29,58 @@
         settings
     </div>
    
-    <div class="setting" on:click={gotoDashboard}>
-        <img class ="logout_img"src="./reading.png" alt="dashboard.png" width="7%">
-        dashboard
-    </div>
 
     <div class="logout" on:click={gotoLogin}>
         <img class ="logout_img"src="./logout.png" alt="logout_png" width="7%">
         logout
     </div>
+
 </div>
 
-These are the settings.
+<div class = 'countDown'>
+
+    <div class="game_start">
+        <h1>Game starts in...<h1>
+    </div>
+
+    <div class="count_down">
+        <h1>{countDownTimer}<h1>
+    </div>
+
+    <div class="next_button">
+        <button on:click={beginGame}>Next</button>
+    </div>
+
+</div>
+
 
 <style>
 
-    .top_menu {
+    .countDown {
+        margin: 10%;
+    }
+
+    .count_down {
+        font-family: 'Fira Sans Condensed', sans-serif;
+        text-align: center;
         display: flex;
-        margin-top: 1.5%;
-        flex-direction: row;
+        margin-left: auto;
         justify-content: center;
     }
 
+    .game_start {
+        font-family: 'Fira Sans Condensed', sans-serif;
+		font-style: normal;
+		font-weight: normal;
+		font-size: 1.2vw;
+        text-align: center;
+    }
+
+    .next_button {
+        text-align: center;
+    }
+
+    
     .setting {
         font-family: 'Fira Sans Condensed', sans-serif;
         font-size: 0.9vw;
@@ -83,6 +105,29 @@ These are the settings.
         margin-left: auto;
         margin-right: auto;
     }
+
+    .top_menu {
+        display: flex;
+        margin-top: 1.5%;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    
+    button {
+		border-radius: 30px;
+		font-family: 'Fira Sans Condensed', sans-serif;
+		font-style: normal;
+		font-weight: normal;
+		font-size: 1.2vw;
+		text-align: center;
+		background:#79C8F4;
+		color: black;
+		width: 10vw;
+		height: 3vw;
+		border: none;
+		box-shadow: 2px 3px gray;
+	}
 
 </style>
 

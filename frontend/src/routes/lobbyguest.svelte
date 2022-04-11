@@ -4,29 +4,27 @@
     import { goto } from "$app/navigation";
     import { loggedInUser, IS_DEPLOYED } from "../stores/stores.js";
     import { onMount } from "svelte";
-    import StudySetView from "../components/StudySetView.svelte";
 
-    let userStudySets = [];
+    var playerReady = false;    
+
+    var guestPlayer = {
+        username: "guest",
+        isHost: false,
+        isReady: playerReady,
+        score: 0
+    }
+
+    var waitMessage = "Waiting for host...";
 
 	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
 		baseURL : apiURL
 	});
 
-    onMount(async () => {
-        loadStudySets();
-    });
+    async function readyGame() {
+        playerReady = true;
+	}
 
-    const loadStudySets = async function() {
-        let response = await api.get("/api/studyset/allsets/" + $loggedInUser);
-        if (!response.data.success) {
-            alert(response.data.message)
-        } else {
-            if (response.data.studysets) {
-                userStudySets = response.data.studysets;
-            }
-        }
-    }
 
     const gotoLogin = function() {
         // Remove global user
@@ -37,17 +35,7 @@
     const gotoSettings = function() {
         goto("/setting");
     }
-    const gotoCreateStudySet = function() {
-        // Need information about selected study set
-        goto("/createStudySet");
-    }
-    const joinAGame = function() {
-        console.log("joining");
-        goto("/Game");
-    }
-
 </script>
-
 
 <svelte:head>
 	<title>Buddy Study</title>
@@ -62,8 +50,8 @@
         settings
     </div>
    
-    <div class="setting">
-        <img class ="logout_img"src="./reading.png" alt="dashboard.png" width="7%">
+    <div class="dashboard">
+        <img class ="dashboard_img"src="./reading.png" alt="dashboard.png" width="7%">
         dashboard
     </div>
 
@@ -71,40 +59,59 @@
         <img class ="logout_img"src="./logout.png" alt="logout_png" width="7%">
         logout
     </div>
+
 </div>
 
-<div class="join_button" on:click={joinAGame}>
-    Join Game
+
+<div class="buddyCode">
+    tempBuddy Code: sdf468w!
 </div>
 
-<div class="study_set">
-    My Study Sets
-        <div class="add_study_set" on:click={gotoCreateStudySet}>
-            <img class ="add_img"src="./plus.png" alt="add_png" width="1.8%"> Add a Study Set
-        </div>
-</div>
-
-<div class="study_set_list">
-    {#each userStudySets as { subject, studysetID }}
-        <StudySetView subject={subject} id={studysetID}/>
+<!-- Should show the list of people in here -->
+<!-- <div class="guest_list">
+    {#each  as {}}
     {/each}
+</div> -->
+
+<div class="buddyGuest">
+    player1<br>
+    <!--if it is host need to show that player is the host-->
+    
+    player2
+    <!--if the player is ready need to show it is ready by using bool value-->
+
 </div>
+
+<!--Need to put this button inside of each study sets-->
+
+{#if !playerReady}
+<div class="buttons">
+    <div class="ready_button">
+        <button on:click={readyGame}>Ready</button>
+    </div>
+
+</div>
+{/if}
+
+{#if playerReady}   
+    <p>Waiting for Host...</p>
+{/if}
 
 <style>
-	.top_menu {
+    .top_menu {
         display: flex;
         margin-top: 1.5%;
         flex-direction: row;
         justify-content: center;
     }
 
-    .setting {
+    .setting, .dashboard {
         font-family: 'Fira Sans Condensed', sans-serif;
         font-size: 0.9vw;
         text-align: center;
     }
 
-    .setting_img {
+    .setting_img, .dashboard_img{
         display: block;
         margin-left: auto;
         margin-right: auto;
@@ -123,44 +130,41 @@
         margin-right: auto;
     }
 
-    .study_set {
-        margin-top: 5%;
-        font-family: 'Archivo Black', sans-serif;
-		text-align: center;
-		font-size: 3vw;
-    }
-
-    .add_study_set {
-        margin-top: 3%;
-        font-size: 2vw;
-    }
-    
-    .study_set_list {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .join_button {
-        margin-top: 3%;
-        border-radius: 30px;
+    button {
+		border-radius: 30px;
 		font-family: 'Fira Sans Condensed', sans-serif;
 		font-style: normal;
 		font-weight: normal;
 		font-size: 1.2vw;
 		text-align: center;
-		background: #79C8F4;
+		background:#79C8F4;
 		color: black;
 		width: 10vw;
 		height: 3vw;
 		border: none;
 		box-shadow: 2px 3px gray;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
+	}
+
+    .buttons{
+		display: flex;
+		justify-content: center;
+		margin-top: 3%;
+		margin-bottom: 2%;
+	}
+
+    .buddyCode {
+        text-align: center;
+        font-family: 'Fira Sans Condensed', sans-serif;
+        font-weight: bold;
+        margin: 3%;
     }
 
+    .buddyGuest{
+        text-align: center;
+    }
+	
 </style>
-
+	
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Sans+Condensed&display=swap" rel="stylesheet">

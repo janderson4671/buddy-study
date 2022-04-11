@@ -99,7 +99,7 @@
     async function handleCreateLobby() {
         global_view.isHost = true; 
         global_view.isReady = true; 
-        let res = await api.get("/api/game/newlobby" + "?username=" + data.username); 
+        let res = await api.get("/api/game/newlobby" + "?username=" + global_view.username); 
         global_view.lobbyId = res.data.lobbyId; 
         while (!realtimeInitialized) {}
         global_view.lobbyChannel = global_view.realtime.channels.get(
@@ -125,8 +125,8 @@
         // Enter Main Thread
         global_view.globalChannel = global_view.realtime.channels.get(global_view.globalChannelChName); 
         global_view.globalChannel.presence.enter({
-            username: data.username, 
-            lobbyId: data.lobbyId
+            username: global_view.username, 
+            lobbyId: global_view.lobbyId
         }); 
 
         global_view.isLobby = true; 

@@ -72,7 +72,7 @@ global_view.realtime = await Ably.Realtime({
 /* *********************** */ 
 // ------------------------------------------------------------------------------
 global_view.isHost = true; 
-let res = await api.get("/api/game/newlobby" + "?username=" + data.username); 
+let res = await api.get("/api/game/newlobby" + "?username=" + global_view.username); 
 global_view.lobbyId = res.data.lobbyId; 
 global_view.lobbyChannel = global_view.realtime.channels.get(
     `${global_view.lobbyId}:primary`
@@ -97,8 +97,8 @@ global_view.lobbyChannel.subscribe("thread-ready", () => {
 // Enter Main Thread
 global_view.globalChannel = global_view.realtime.channels.get(global_view.globalChannelChName); 
 global_view.globalChannel.presence.enter({
-    username: data.username, 
-    lobbyId: data.lobbyId
+    username: global_view.username, 
+    lobbyId: global_view.lobbyId
 }); 
 // ------------------------------------------------------------------------------
 
@@ -251,14 +251,14 @@ function answerQuestion(indexOfPicked) {
 // --> navigate back to lobby component
 
 // Listener for "Play Again?" button (only shows on leaderboard_view.isLastQuestion)
-    data.myPlayerCh.detach()
-    data.lobbyChannel.detach(); 
+    global_view.myPlayerCh.detach()
+    global_view.lobbyChannel.detach(); 
     // --> navigate back to main join game / create lobby component
 
 
 
 /* ON DESTRUCT (WHEN NAVIGATING TO A DIFFERENT TAB OTHER THAN GAME) */ 
-data.realtime.connection.close(); 
+global_view.realtime.connection.close(); 
 
 // onMount
 // onDestroy

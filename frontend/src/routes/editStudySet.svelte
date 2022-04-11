@@ -49,18 +49,12 @@
     }
 
     async function startGame() {
+        if (flashcards.length >= 4) {
+            goto("/Game");
+        } else {
+            alert("Study set needs to have at least 4 flashcards to play a game!"); 
+        }
         
-        let res = await api.get("/api/game/newlobby" + "?username=" + $loggedInUser); 
-        if (!res.data.success) {
-            alert("Error Message: " + res.data.message); 
-        }
-        else if (res.data.lobbyId == null) {
-            alert("Error Message: " + "server error"); 
-        } 
-        else {
-            $lobbyId = res.data.lobbyId; 
-            goto("./startGame");
-        }
     }
 
 </script>
@@ -90,8 +84,8 @@
 </div>
 
 <div class="flashcard_list">
-    {#each flashcards as { question, answer }}
-        <FlashCardView question={question} answer={answer}/>
+    {#each flashcards as { questionText, answerText }}
+        <FlashCardView question={questionText} answer={answerText}/>
     {/each}
 </div>
 

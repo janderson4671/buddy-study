@@ -1,7 +1,4 @@
 <script>
-
-    
-
     export let subject;
     export let id;
     

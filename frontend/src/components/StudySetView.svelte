@@ -5,10 +5,9 @@
     import { goto } from "$app/navigation"
     import { selectedStudySet } from "../stores/stores.js"
 
-    const gotoStudySetEdit = function() {
+    function gotoStudySetEdit() {
         // Set the selected studyset globally so it can be edited
         $selectedStudySet = id;
-        
         goto("/editStudySet");
     }
 </script>

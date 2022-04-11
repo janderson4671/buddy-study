@@ -3,66 +3,64 @@
 	import axios from "axios";
 	import { selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
 	import { goto } from "$app/navigation";
-	let startGameCode = null;
 
     export let global_view = {}; 
     export let leaderboard_view = {}; 
-
-    var nextQuestionTimer = 10;
-    var isLastQuestion = false;
-    var leaderboard = "";
-    var playAgainSelected = false;
-    var quitSelectes = false;
-
-    var players = ["Player1", "Player2"];
 
     let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
 		baseURL : apiURL
 	});
 
-    const exitGame = function() {
+    function playAgain() {
+        global_view.currentView = global_view.ON_LOBBY; 
+    }
+
+    function exitGame() {
+        global_view.myPlayerCh.detach(); 
+        global_view.lobbyChannel.detach(); 
         goto("/dashboard");
     }
 
+    let title = leaderboard_view.isLastQuestion ? "Final Results" : "Leaderboard"; 
+
 </script>
 
-    {#if !isLastQuestion}
-    <div class="results_header">
-            <h1 class="results_header_style">Results</h1>
-            <p1>Player1:   3</p1><br>
-            <p1>Player2:   4</p1><br>
-            Next question in {nextQuestionTimer}
+<div class="results_header">
+    <h1 class="results_header_style">{title}</h1>
+</div>
+<div id="leaderboard">
+    <div class="leaderboard-row">
+        <div class="column-key-box">Rank</div>
+        <div class="column-key-box">Player</div>
+        <div class="column-key-box">Score</div>
+    </div>
+    {#each leaderboard_view.leaderboard as player, i}
+        <div class="leaderboard-row">
+            <div class="player-info-box">
+                {i+1}
+            </div>
+            <div class="player-info-box">
+                {leaderboard_view.leaderboard[i].username}
+            </div>
+            <div class="player-info-box">
+                {leaderboard_view.leaderboard[i].score}
+            </div>
         </div>
-
-        <!-- display players with scores 
-
-        {#each players as PlayerList}
-            
-        {/each}
-        -->
-
-
-    {/if}
-    {#if isLastQuestion} 
-        <div class="results_header">
-            Final Results
-        </div>
-
-        <!-- display players with scores 
-
-        {#each players as PlayerList}
-            
-        {/each}
-        -->
-        <button>Play Again</button>
-        <button>Exit</button>
-    {/if}
-
-    <div class = exit_button on:click={exitGame}>Exit</div>
+    {/each}
+</div>
+{#if leaderboard_view.isLastQuestion}
+    <div class="buttons">
+        <button class="action-button" on:click={playAgain}>Play Again</button>
+        <button class="action-button" on:click={exitGame}>Exit</button>
+    </div>
+{:else}
+    <div class="timer">
+        Next question in {leaderboard_view.nextQuestionTimer}
+    </div>
+{/if}
 
 <style>
-
     .results_header {
         text-align: center;
     }
@@ -72,7 +70,7 @@
         font-size: 2.5vw;
     }
 
-    .exit_button {
+    .action-button {
         margin-top: 3%;
         border-radius: 30px;
 		font-family: 'Fira Sans Condensed', sans-serif;
@@ -89,6 +87,39 @@
         display: block;
         margin-left: auto;
         margin-right: auto;
+    }
+    #leaderboard {
+        display:flex; 
+        flex-direction:column;
+        align-items:center;
+        width:auto;
+        height:auto; 
+        font-size:25px; 
+    }
+    .leaderboard-row {
+        display:flex; 
+        flex-direction:row; 
+    }  
+    .column-key-box {
+        text-align:center;
+        font-weight:bold; 
+        width:10em; 
+    }
+    .player-info-box {
+        width:10em; 
+        text-align:center;
+    }
+    .buttons {
+        display:flex;
+        flex-direction:row; 
+    }
+    .timer {
+        text-align: center;
+        font-family: 'Fira Sans Condensed', sans-serif;
+		font-style: normal;
+		font-weight: normal;
+        font-size: 27px;
+        margin-bottom: 10px;
     }
 
 </style>

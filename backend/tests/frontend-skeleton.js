@@ -103,6 +103,7 @@ global_view.lobbyChannel.subscribe("thread-ready", () => {
     subscriptions(); 
     
     if (global_view.chosenStudySet != null) {
+        console.log("At load studyset command..."); 
         global_view.hostAdminCh.publish("load-studyset", {
             studysetID: global_view.chosenStudySet 
         }); 
@@ -271,7 +272,7 @@ function answerQuestion(indexOfPicked) {
     }); 
 }
 
-// Listener for "Exit to lobby?" button (only shows on leaderboard_view.isLastQuestion)
+// Listener for "Play Again?" button (only shows on leaderboard_view.isLastQuestion)
 // --> navigate back to lobby component
 
 // Listener for "Play Again?" button (only shows on leaderboard_view.isLastQuestion)

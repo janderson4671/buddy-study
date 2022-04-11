@@ -30,8 +30,8 @@ const realtime = Ably.Realtime({
 // Constants (all are arbitrary for now)
 const MIN_PLAYERS_TO_START_GAME = 2;  
 const GAME_ROOM_CAPACITY = 2; 
-const START_TIMER_SEC = 10; 
-const Q_TIMER_SEC = 15; 
+const START_TIMER_SEC = 5; 
+const Q_TIMER_SEC = 5; 
 const LEADERBOARD_TIMER_SEC = 5; 
 const NEXT_QUESTION_TIMER_SEC = 5;   
 const SMALLEST_SET_ALLOWED = 4; 
@@ -101,7 +101,13 @@ function handleNewPlayer(player) {
         studysetSubject: curStudySetName, 
         // studysetID: res.studysetID
     });  
-    lobbyChannel.publish("update-player-states", globalPlayerStates); 
+    lobbyChannel.publish("update-player-states", globalPlayerStates);
+    if (curStudysetID != null) {
+        lobbyChannel.publish("studyset-loaded", {
+            studysetSubject: res.studysetSubject, 
+            // studysetID: res.studysetID
+        }); 
+    }
 }
 
 function handlePlayerLeft(player) {
@@ -150,6 +156,7 @@ function subscribeToHost() {
         if ((readyCount == totalPlayers) && (curStudysetID != null)) {
             readyCount = 1;
             for (const playerId in globalPlayerStates) {
+                globalPlayerStates[playerId].score = 0; 
                 if (!globalPlayerStates[playerId].isHost) {
                     globalPlayerStates[playerId].isReady = false;  
                 } else {
@@ -193,8 +200,12 @@ function subscribeToHost() {
             let cardNum = 0; 
             res.flashCards.forEach(card => {
                 let options = []; 
+                let soFar = []; 
+                let fakeAnswerInd = -1; 
                 for (let i = 0; i < NUM_FAKE_ANSWERS; i++) {
-                    options.push(allAnswers[findFakeAnswerNum(answersLen, cardNum)]); 
+                    fakeAnswerInd = findFakeAnswerNum(answersLen, cardNum, soFar)
+                    soFar.push(fakeAnswerInd); 
+                    options.push(allAnswers[fakeAnswerInd]); 
                 }
                 options.splice(getRandomInt(NUM_FAKE_ANSWERS + 1), 0, card.answerText); 
                 questions.push({
@@ -206,6 +217,7 @@ function subscribeToHost() {
             }); 
             curStudySetName = res.studysetSubject; 
             curStudysetID = res.studysetID; 
+            console.log("Studyset loaded!"); 
             lobbyChannel.publish("studyset-loaded", {
                 studysetSubject: res.studysetSubject, 
                 // studysetID: res.studysetID
@@ -345,11 +357,11 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max); 
 }
 
-function findFakeAnswerNum(numAnswers, correctIndex) {
+function findFakeAnswerNum(numAnswers, correctIndex, soFar) {
     let index = -1; 
     while (true) {
         index = getRandomInt(numAnswers); 
-        if (index != correctIndex) {
+        if (index != correctIndex && !soFar.includes(index)) {
             return index; 
         }
     }

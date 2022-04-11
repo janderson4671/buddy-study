@@ -19,6 +19,11 @@
         if (global_view.realtime) {
             global_view.realtime.connection.close(); 
         }
+        global_view = {}
+        countdown_view = {}
+        question_view = {}
+        leaderboard_view = {}
+        $selectedStudySet = null; 
     }); 
     
 	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
@@ -77,7 +82,7 @@
         questionAnswered: false, 
         playerAnswer: null, 
         correctAnswer: null, 
-        leaderboardTimer: -1, 
+        leaderboardTimer: 0, 
         questionAnswered: false, 
 
         showAnswers: false, 
@@ -126,7 +131,7 @@
             global_view.globalChannel.detach(); 
 
             subscriptions(); 
-            
+
             if (global_view.chosenStudySet != null) {
                 global_view.hostAdminCh.publish("load-studyset", {
                     studysetID: global_view.chosenStudySet 
@@ -139,6 +144,7 @@
             username: global_view.username, 
             lobbyId: global_view.lobbyId
         }); 
+
         global_view.currentView = global_view.ON_LOBBY; 
         global_view.isOnServer = true; 
     }
@@ -201,8 +207,8 @@
         }); 
         global_view.lobbyChannel.subscribe("new-question", msg => {
             question_view.questionAnswered = false; 
+            question_view.showAnswers = false; 
             question_view.playerAnswer = null; 
-            question_view.leaderboardTimer = -1; 
             question_view.qNum = msg.data.questionNumber;
             question_view.qText = msg.data.questionText; 
             question_view.options = msg.data.options; 
@@ -213,9 +219,10 @@
         }); 
         global_view.lobbyChannel.subscribe("correct-answer", msg => {
             question_view.correctAnswer = msg.data.answerText; 
+            question_view.showAnswers = true; 
         }); 
         global_view.lobbyChannel.subscribe("leaderboard-timer", msg => {
-            leaderboard_view.leaderboardTimer = msg.data.countDownSec; 
+            question_view.leaderboardTimer = msg.data.countDownSec; 
         }); 
         global_view.lobbyChannel.subscribe("new-leaderboard", msg => {
             leaderboard_view.isLastQuestion = msg.data.isLastQuestion; 
@@ -227,10 +234,14 @@
             global_view.currentView = global_view.ON_LEADERBOARD; 
         }); 
         global_view.lobbyChannel.subscribe("next-question-timer", msg => {
+            console.log("Received the next-question-timer!!"); 
             leaderboard_view.nextQuestionTimer = msg.data.countDownSec; 
         }); 
         global_view.lobbyChannel.subscribe("kill-lobby", msg => {
-            global_view.gameKilled = true; 
+            global_view.gameKilled = true;
+            global_view.myPlayerCh.detach(); 
+            global_view.lobbyChannel.detach(); 
+            goto("/dashboard");
         }); 
 
         // Set up my player
@@ -242,16 +253,15 @@
 
 </script>
 
-<p>Content</p>
 {#if global_view.isOnServer}
     {#if global_view.currentView == global_view.ON_LOBBY}
         <Lobby bind:global_view></Lobby>
     {:else if global_view.currentView == global_view.ON_COUNTDOWN}
         <Countdown bind:countdown_view></Countdown>
-    {:else if global_view.currentView == global_view.ON_LEADERBOARD}
-        <Leaderboard  bind:global_view bind:leaderboard_view></Leaderboard>
     {:else if global_view.currentView == global_view.ON_QUESTION}
         <Question bind:global_view bind:question_view></Question>
+    {:else if global_view.currentView == global_view.ON_LEADERBOARD}
+        <Leaderboard bind:global_view bind:leaderboard_view></Leaderboard>
     {:else if global_view.currentView == global_view.ON_SELECT_STUDYSET}
         {#if global_view.isHost}
             <SelectStudySet bind:global_view></SelectStudySet>

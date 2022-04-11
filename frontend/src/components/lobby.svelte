@@ -1,5 +1,6 @@
 <script>
     import { onMount } from "svelte"; 
+	import { goto } from "$app/navigation";
 
     export let global_view = {}; 
 
@@ -16,30 +17,45 @@
         }); 
     }
 
-    async function editStudySet() {
-        
+    function editStudySet() {
+        global_view.myPlayerCh.detach(); 
+        global_view.lobbyChannel.detach(); 
+        goto("/dashboard");
     }
 </script>
 
 <div class="buddyCode">
     tempBuddy Code: {global_view.lobbyId}
-    <div class="studysetTitle">
-        Study Set Subject: {global_view.curStudySetName}
+</div>
+<div class="studysetTitle">
+    Study Set Subject: {global_view.curStudySetName}
+</div>
+<div id="player-table">
+    <div class="player-row">
+        <div class="column-key-box">Player</div>
+        <div class="column-key-box"></div>
+        <div class="column-key-box">Ready?</div>
     </div>
-    <div class="guest_list">
-        {#each Object.entries(global_view.players) as [playerId, player]}
-            {player.username}
-            {#if player.isReady}
-                Ready! 
-            {:else}
-                waiting...
-            {/if}
-            {#if player.isHost}
-                HOST
-            {/if}
-            <br>
-        {/each}
-    </div>
+    {#each Object.entries(global_view.players) as [playerId, player]}
+        <div class="player-row">
+            <div class="player-info-box">
+                {player.username}
+            </div>
+            <div class="player-info-box">
+                {#if player.isHost}
+                    HOST
+                {/if}
+            </div>
+            <div class="player-info-box">
+                {#if player.isReady}
+                    &#10003;
+                <!-- {:else}
+                    &#9745; -->
+                {/if}
+            </div>
+            
+        </div>
+    {/each}
 </div>
 
 {#if global_view.isHost}
@@ -60,7 +76,6 @@
 
 
 <style>
-
     button {
 		border-radius: 30px;
 		font-family: 'Fira Sans Condensed', sans-serif;
@@ -99,6 +114,28 @@
         font-family: 'Fira Sans Condensed', sans-serif;
         font-weight: bold;
         margin: 3%;
+    }
+
+    #player-table { 
+        display:flex; 
+        flex-direction:column; 
+        align-items:center; 
+        width:auto;
+        height:auto; 
+        font-size:25px; 
+    }
+    .player-row {
+        display:flex; 
+        flex-direction:row; 
+    }
+    .column-key-box {
+        text-align:center; 
+        font-weight:bold; 
+        width:10em; 
+    }
+    .player-info-box {
+        width:10em; 
+        text-align:center; 
     }
 	
 </style>

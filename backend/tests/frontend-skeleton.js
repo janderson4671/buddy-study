@@ -47,7 +47,7 @@ let countdown_view = {
 let question_view = {
     // Question View
     qNum: 0, 
-    qTimer: 0; 
+    qTimer: 0, 
     qText: null, 
     options: null, 
     questionAnswered: false, 

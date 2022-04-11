@@ -30,10 +30,10 @@ const realtime = Ably.Realtime({
 // Constants (all are arbitrary for now)
 const MIN_PLAYERS_TO_START_GAME = 2;  
 const GAME_ROOM_CAPACITY = 2; 
-const START_TIMER_SEC = 5; 
-const Q_TIMER_SEC = 3; 
-const LEADERBOARD_TIMER_SEC = 3; 
-const NEXT_QUESTION_TIMER_SEC = 3;   
+const START_TIMER_SEC = 10; 
+const Q_TIMER_SEC = 15; 
+const LEADERBOARD_TIMER_SEC = 5; 
+const NEXT_QUESTION_TIMER_SEC = 5;   
 const SMALLEST_SET_ALLOWED = 4; 
 const NUM_FAKE_ANSWERS = 3; 
 

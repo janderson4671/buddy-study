@@ -4,7 +4,7 @@
     import * as Ably from 'ably';
     import { goto } from "$app/navigation";
     import { loggedInUser, selectedStudySet, IS_DEPLOYED} from "../stores/stores.js"
-    import { onMount } from "svelte";
+    import { onDestroy } from "svelte";
 
     /* --- Child Components --- */
     import Countdown from "../components/Countdown.svelte";
@@ -15,6 +15,11 @@
     import Nested from "../components/Nested.svelte";
     import SelectStudySet from "../components/SelectStudySet.svelte";
 
+    onDestroy(async () => {
+        if (global_view.realtime) {
+            global_view.realtime.connection.close(); 
+        }
+    }); 
     
 	let apiURL = ($IS_DEPLOYED ? "" : "http://localhost:3000");
 	const api = axios.create({
@@ -242,7 +247,7 @@
     {#if global_view.currentView == global_view.ON_LOBBY}
         <Lobby bind:global_view></Lobby>
     {:else if global_view.currentView == global_view.ON_COUNTDOWN}
-        <Countdown bind:global_view bind:countdown_view></Countdown>
+        <Countdown bind:countdown_view></Countdown>
     {:else if global_view.currentView == global_view.ON_LEADERBOARD}
         <Leaderboard  bind:global_view bind:leaderboard_view></Leaderboard>
     {:else if global_view.currentView == global_view.ON_QUESTION}

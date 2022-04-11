@@ -2,21 +2,9 @@
     import { goto } from "$app/navigation";
     import { loggedInUser, selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
 
-    export let global_view = {}; 
     export let countdown_view = {}; 
 
-    var countDownTimer = 10;
-
-    const count_down = function() {
-
-    }
-
-    const beginGame = function() {
-    }
-
 </script>
-
-
 
 <div class = 'countDown'>
 
@@ -25,12 +13,12 @@
     </div>
 
     <div class="count_down">
-        <h1>{count_down}<h1>
+        <h1>{countdown_view.countdownTimer}<h1>
     </div>
-
+<!-- 
     <div class="next_button">
         <button on:click={beginGame}>Next</button>
-    </div>
+    </div> -->
 
 </div>
 

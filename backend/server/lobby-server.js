@@ -30,7 +30,7 @@ const realtime = Ably.Realtime({
 // Constants (all are arbitrary for now)
 const MIN_PLAYERS_TO_START_GAME = 2;  
 const GAME_ROOM_CAPACITY = 2; 
-const START_TIMER_SEC = 5; 
+const START_TIMER_SEC = 10; 
 const Q_TIMER_SEC = 5; 
 const LEADERBOARD_TIMER_SEC = 5; 
 const NEXT_QUESTION_TIMER_SEC = 5;   
@@ -131,7 +131,7 @@ function handlePlayerLeft(player) {
 }
 
 async function publishTimer(event, countDownSec) {
-    while (countDownSec > 0) {
+    while (countDownSec >= 0) {
         lobbyChannel.publish(event, {
             countDownSec: countDownSec
         }); 

@@ -40,7 +40,11 @@
     <div class="timer">
         Show leaderboard in {question_view.leaderboardTimer}...
     </div>
-{/if}
+{:else}
+    <div class="timer">
+        {question_view.qTimer} seconds left to answer question...
+    </div>
+{/if} 
 
 <style>
     .timer {

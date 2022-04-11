@@ -1,6 +1,7 @@
 <script>
     export const prerender = true;
 	import axios from "axios";
+    import * as Ably from 'ably';
     import { goto } from "$app/navigation";
     import { loggedInUser, selectedStudySet, IS_DEPLOYED} from "../stores/stores.js"
     import { onMount } from "svelte";

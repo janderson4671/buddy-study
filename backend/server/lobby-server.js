@@ -152,7 +152,9 @@ function subscribeToHost() {
             for (const playerId in globalPlayerStates) {
                 if (!globalPlayerStates[playerId].isHost) {
                     globalPlayerStates[playerId].isReady = false;  
-                } 
+                } else {
+                    globalPlayerStates[playerId].isReady = true; 
+                }
             }
             lobbyChannel.publish("update-player-states", globalPlayerStates); 
             curQuestionNum = 0; 

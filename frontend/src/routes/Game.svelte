@@ -29,7 +29,7 @@
 
         /* --- Normal Player Base Variables --- */ 
         realtime: null, 
-        username: $loggedInUser.username, 
+        username: $loggedInUser, 
         myClientId: null, 
         globalChannelChName: "main-game-thread", 
         globalChannel: null, 
@@ -97,7 +97,7 @@
     }
 
     async function initializeRealtime() {
-        global_view.realtime = await Ably.Realtime({
+        global_view.realtime = new Ably.Realtime({
             authUrl: ($IS_DEPLOYED ? "" : "http://localhost:3000") + "/api/game/auth"
         });
         realtimeInitialized = true; 

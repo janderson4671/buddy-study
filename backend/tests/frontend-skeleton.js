@@ -47,13 +47,13 @@ let countdown_view = {
 let question_view = {
     // Question View
     qNum: 0, 
-    qTimer: 0, 
+    qTimer: 0; 
     qText: null, 
     options: null, 
     questionAnswered: false, 
     playerAnswer: null, 
     correctAnswer: null, 
-    leaderboardTimer: null, 
+    leaderboardTimer: -1, 
     questionAnswered: false, 
 
     showAnswers: false, 
@@ -114,6 +114,8 @@ global_view.globalChannel.presence.enter({
     username: global_view.username, 
     lobbyId: global_view.lobbyId
 }); 
+global_view.currentView = global_view.ON_LOBBY; 
+global_view.isOnServer = true; 
 // ------------------------------------------------------------------------------
 
 
@@ -139,6 +141,8 @@ global_view.lobbyChannel = global_view.realtime.channels.get(
 if (!(await isLobbyEmpty())) {
     global_view.lobbyId = input; // The variable input here is whatever code was entered
     subscriptions(); 
+    global_view.currentView = global_view.ON_LOBBY;             
+    global_view.isOnServer = true; 
 } else {
     global_view.lobbyChannel = null; 
 }
@@ -167,13 +171,18 @@ function subscriptions() {
     global_view.lobbyChannel.subscribe("countdown-timer", msg => {
         global_view.gameStarted = true; 
         countdown_view.countdownTimer = msg.data.countDownSec; 
+        if (global_view.currentView != global_view.ON_COUNTDOWN) {
+            global_view.currentView = global_view.ON_COUNTDOWN; 
+        }
     }); 
     global_view.lobbyChannel.subscribe("new-question", msg => {
         question_view.questionAnswered = false; 
         question_view.playerAnswer = null; 
+        question_view.leaderboardTimer = -1; 
         question_view.qNum = msg.data.questionNumber;
         question_view.qText = msg.data.questionText; 
         question_view.options = msg.data.options; 
+        global_view.currentView = global_view.ON_QUESTION; 
     }); 
     global_view.lobbyChannel.subscribe("question-timer", msg => {
         question_view.qTimer = msg.data.countDownSec; 
@@ -191,6 +200,7 @@ function subscriptions() {
         if (leaderboard_view.isLastQuestion) {
             global_view.gameStarted = false; 
         }
+        global_view.currentView = global_view.ON_LEADERBOARD; 
     }); 
     global_view.lobbyChannel.subscribe("next-question-timer", msg => {
         leaderboard_view.nextQuestionTimer = msg.data.countDownSec; 

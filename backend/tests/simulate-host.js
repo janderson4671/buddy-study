@@ -263,6 +263,7 @@ let simulateHost = async function simulateHost() {
         // Subscribe to Lobby Channels
         data.lobbyChannel.subscribe("update-player-states", msg => {
             data.players = msg.data; 
+            data.isReady = data.players[data.myClientId].isReady; 
             displayLobbyDashboard(); 
         }); 
         data.lobbyChannel.subscribe("update-readied", msg => {

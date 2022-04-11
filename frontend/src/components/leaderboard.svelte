@@ -1,12 +1,12 @@
 <script>
-
     export const prerender = true;
 	import axios from "axios";
 	import { selectedStudySet, IS_DEPLOYED } from "../stores/stores.js"
 	import { goto } from "$app/navigation";
 	let startGameCode = null;
 
-    export let data;
+    export let global_view = {}; 
+    export let leaderboard_view = {}; 
 
     var nextQuestionTimer = 10;
     var isLastQuestion = false;

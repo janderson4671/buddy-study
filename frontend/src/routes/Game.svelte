@@ -43,12 +43,16 @@
         gameKilled: false, 
 
         /* --- Component Flags --- */
-        isOnServer: false, 
-        isCountdown: false,
-        isLobby: false,
-        isLeaderboard: false,
-        isQuestion: false,
-        isSelectStudySet: false
+        isOnServer: false,
+        currentView: 0, 
+
+        /* --- Component Constants --- */ 
+        ON_ENTRY: 0, 
+        ON_LOBBY: 1, 
+        ON_COUNTDOWN: 2, 
+        ON_QUESTION: 3, 
+        ON_LEADERBOARD: 4, 
+        ON_SELECT_STUDYSET: 5,
     }
 
     /* --- In-Game Variables --- */ 
@@ -69,6 +73,8 @@
         correctAnswer: null, 
         leaderboardTimer: null, 
         questionAnswered: false, 
+
+        showAnswers: false, 
     }
 
     let leaderboard_view = {
@@ -82,11 +88,10 @@
 
     let inputCode = ""; 
     let realtimeInitialized = false; 
-    initializeRealtime(); 
+    initializeRealtime();   
 
-    if ($selectedStudySet == null) {
-        global_view.isOnServer = false; 
-    } else {
+    if ($selectedStudySet != null) {
+        global_view.chosenStudySet = $selectedStudySet; 
         handleCreateLobby();
     }
 
@@ -128,8 +133,8 @@
             username: global_view.username, 
             lobbyId: global_view.lobbyId
         }); 
-
-        global_view.isLobby = true; 
+        global_view.currentView = global_view.ON_LOBBY; 
+        global_view.isOnServer = true; 
     }
 
     async function isLobbyEmpty() { 
@@ -151,7 +156,8 @@
         if (!(await isLobbyEmpty())) {
             global_view.lobbyId = inputCode; // The variable input here is whatever code was entered
             subscriptions(); 
-            global_view.isLobby = true; 
+            global_view.currentView = global_view.ON_LOBBY;             
+            global_view.isOnServer = true; 
         } else {
             global_view.lobbyId = null; 
             global_view.lobbyChannel = null; 
@@ -219,16 +225,16 @@
 
 <p>Content</p>
 {#if global_view.isOnServer}
-    {#if global_view.isHost}
-        {#if global_view.isLobby}
-            <Lobby bind:global_view></Lobby>
-        {:else if global_view.isCountdown}
-            <Countdown bind:global_view bind:countdown_view></Countdown>
-        {:else if global_view.isLeaderboard}
-            <Leaderboard  bind:global_view bind:leaderboard_view></Leaderboard>
-        {:else if global_view.isQuestion}
-            <Question bind:global_view bind:question_view></Question>
-        {:else if global_view.isSelectStudySet}
+    {#if global_view.currentView == global_view.ON_LOBBY}
+        <Lobby bind:global_view></Lobby>
+    {:else if global_view.currentView == global_view.ON_COUNTDOWN}
+        <Countdown bind:global_view bind:countdown_view></Countdown>
+    {:else if global_view.currentView == global_view.ON_LEADERBOARD}
+        <Leaderboard  bind:global_view bind:leaderboard_view></Leaderboard>
+    {:else if global_view.currentView == global_view.ON_QUESTION}
+        <Question bind:global_view bind:question_view></Question>
+    {:else if global_view.currentView == global_view.ON_SELECT_STUDYSET}
+        {#if global_view.isHost}
             <SelectStudySet bind:global_view></SelectStudySet>
         {/if}
     {/if}

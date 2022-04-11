@@ -1,6 +1,6 @@
 <script>
-
-    export let data;
+    export let global_view = {}; 
+    export let question_view = {}; 
 
     var qNum;
     var qText = "Question";

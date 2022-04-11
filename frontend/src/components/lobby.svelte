@@ -2,8 +2,7 @@
 
     import { onMount } from "svelte";
 
-    export let global_view;
-
+    export let global_view = {}; 
 
     onMount(async () => {
         
@@ -73,7 +72,7 @@
 
 
 
-{#if data.isHost}
+{#if global_view.isHost}
     <div class="buttons">
         <div class="startgame_button">
             <button on:click={startGame}>Start game</button>
